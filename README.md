@@ -24,7 +24,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 1. 打开终端下载脚本，例如：
 
    ```bash
-   make-mihomo-env.sh
+   curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o 'make-mihomo-env.sh' 'https://github.com/469138946ba5fa/make-mihomo-envs/raw/refs/heads/master/make-mihomo-env.sh'
    ```
 
 2. 给脚本授权并执行：
