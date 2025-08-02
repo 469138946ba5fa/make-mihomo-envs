@@ -68,10 +68,10 @@ Mihomo 一键搭建配置脚本（macOS arm64）
    └── temp_config.yaml
    ```
 
-5. 启动 Mihomo tun 代理：
+5. 按照脚本提示启动 Mihomo tun 代理：
 
    ```bash
-   ./mihomo-start.sh
+   ~/Desktop/mihomos/mihomo-start.sh
    ```
 
 ---
@@ -123,6 +123,28 @@ https://sub.d1.mk/sub
 * 如需**旁路由**，请将路由器或设备网关设置为本机 IP（同时设置 DNS）
 * 若出现网络策略未生效，请检查系统是否允许 `tun` 接口访问网络
 * 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
+* 如果发现有 yaml 解析错误的现象，你可以按照以下步骤使用 `subs-fix.py` 执行命令对节点文件进行修复
+  * 下载 `subs-fix.py` 文件，执行命令
+    ```bash
+    curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o 'subs-fix.py' 'https://github.com/469138946ba5fa/make-mihomo-envs/raw/refs/heads/master/subs-fix.py'
+    ``` 
+  * 备份节点配置文件，执行命令
+    ```bash
+    cp -fv mihomos/config.yaml  mihomos/config.yaml.bak
+    ```
+  * 修补节点配置文件，执行命令
+    ```python
+    python subs-fix.py mihomos/config.yaml.bak mihomos/config.yaml
+    ```
+  * 执行启动 mihomo 脚本测试，执行命令
+    ```bash
+    ~/Desktop/mihomos/mihomo-start.sh
+    ```
+  * 问题分析
+    * 比如 FATA[date] Parse config error: yaml: line num: did not find expected node content 原因如下
+    * 那是由于在线订阅转换链接转换的节点有时候用了 YAML 行内简写结构 {}，其中嵌套的 ws-opts 再次使用 {}，造成了 YAML 无法准确解析结构层次的问题
+    * YAML 对 {} 的嵌套解析非常敏感，嵌套中 headers 没有适当引号包裹的值（如 Host），path: 字段值中含有 /@xxx 这类特殊字符没加引号
+    * 需要用 Python 或 YAML 专用工具转换将每个行内简写结构 {} 展开为 YAML 格式，就可以被正常解析了
 
 ---
 
@@ -131,13 +153,14 @@ https://sub.d1.mk/sub
 运行脚本并使用默认配置：
 
 ```bash
+chmod +x ./make-mihomo-env.sh
 ./make-mihomo-env.sh
 ```
 
 运行完成后，执行启动脚本：
 
 ```bash
-./mihomo-start.sh
+~/Desktop/mihomos/mihomo-start.sh
 ```
 
 ---
