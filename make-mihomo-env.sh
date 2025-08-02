@@ -343,7 +343,7 @@ if ! grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
   echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf && sysctl -w net.inet.ip.forwarding=1
 fi
 
-sudo pkill -f ${MIHOMO_BIN_FILE_RENAME}
+sudo pkill -f 'mihomo -f'
 sudo ${MIHOMO_BIN_FILE_RENAME} -f ${MIHOMO_FILE} -d ${MIHOMO_DIR}
 469138946ba5fa
 
