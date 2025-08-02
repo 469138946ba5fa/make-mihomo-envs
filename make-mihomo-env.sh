@@ -327,11 +327,12 @@ if [ -f "${MIHOMO_FILE}" ]; then
     # 替换测试 URL 为更稳定的 Cloudflare
     sed -i '' 's|http://www.gstatic.com/generate_204|http://cp.cloudflare.com/generate_204|g' "${MIHOMO_FILE}"
 
-    # 修改延迟容差为 300ms，增强稳定性
-    sed -i '' 's/tolerance: *[0-9]\+/tolerance: 300/' "${MIHOMO_FILE}"
+    awk '
+    /^  tolerance:/ { sub(/[0-9]+/, "300") }
+    /^  interval:/ { sub(/[0-9]+/, "180") }
+    { print }
+    ' "${MIHOMO_FILE}" > "${MIHOMO_FILE}.tmp" && mv "${MIHOMO_FILE}.tmp" "${MIHOMO_FILE}"
 
-    # 修改测速间隔为 180s，提升动态更新频率
-    sed -i '' 's/interval: *[0-9]\+/interval: 180/' "${MIHOMO_FILE}"
 fi
 
 chmod -Rv a+x ${MIHOMO_DIR_PATH}
