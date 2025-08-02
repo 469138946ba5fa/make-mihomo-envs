@@ -23,8 +23,8 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 
 ## 💻 支持平台
 
-* 仅支持 **macOS**
-* 额适配了 ARM 架构
+* 支持 **macOS**
+* 额支持 ARM 架构
 
 ---
 
