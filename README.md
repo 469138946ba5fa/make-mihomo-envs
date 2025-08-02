@@ -90,7 +90,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 ## 🧩 配置说明
 
 * 默认配置启用了 **TUN 模式** 和 **Fake-IP DNS 模拟**，适用于全局代理和旁路由
-* 配置文件路径：`~/Desktop/mihomos/config.yaml`
+* 配置文件路径：`$HOME/Desktop/mihomos/config.yaml`
 * Web UI 端口：`http://localhost:9999/ui/`
 * 默认监听端口：
 
@@ -166,7 +166,7 @@ chmod +x ./make-mihomo-env.sh
 运行完成后，执行启动脚本：
 
 ```bash
-~/Desktop/mihomos/mihomo-start.sh
+$HOME/Desktop/mihomos/mihomo-start.sh
 ```
 
 ---
