@@ -328,12 +328,12 @@ if [ -f "${MIHOMO_FILE}" ]; then
     sed -i '' 's|http://www.gstatic.com/generate_204|http://cp.cloudflare.com/generate_204|g' "${MIHOMO_FILE}"
 
     awk '
-    /^  tolerance:/ { sub(/[0-9]+/, "300") }
-    /^  interval:/ { sub(/[0-9]+/, "180") }
+    /^[ \t]*tolerance:/ { sub(/:[ ]*[0-9]+/, ": 300") }
+    /^[ \t]*interval:/  { sub(/:[ ]*[0-9]+/, ": 180") }
     { print }
-    ' "${MIHOMO_FILE}" > "${MIHOMO_FILE}.tmp" && mv "${MIHOMO_FILE}.tmp" "${MIHOMO_FILE}"
-
+    ' "$MIHOMO_FILE" > "${MIHOMO_FILE}.tmp" && mv "${MIHOMO_FILE}.tmp" "$MIHOMO_FILE"
 fi
+
 
 chmod -Rv a+x ${MIHOMO_DIR_PATH}
 chown -Rv $USER ${MIHOMO_DIR_PATH}
