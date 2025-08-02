@@ -1,6 +1,15 @@
 # make-mihomo-envs
 Mihomo 一键搭建配置脚本（macOS arm64）
 
+![Watchers](https://img.shields.io/github/watchers/469138946ba5fa/make-mihomo-envs) ![Stars](https://img.shields.io/github/stars/469138946ba5fa/make-mihomo-envs) ![Forks](https://img.shields.io/github/forks/469138946ba5fa/make-mihomo-envs) ![Vistors](https://visitor-badge.laobi.icu/badge?page_id=469138946ba5fa.make-mihomo-envs) ![LICENSE](https://img.shields.io/badge/license-CC%20BY--SA%204.0-green.svg)
+<a href="https://star-history.com/#469138946ba5fa/make-mihomo-envs&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=469138946ba5fa/make-mihomo-envs&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=469138946ba5fa/make-mihomo-envs&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=469138946ba5fa/make-mihomo-envs&type=Date" />
+  </picture>
+</a>
+
 本脚本用于在 **macOS** 系统上自动化完成以下任务：
 
 * 安装依赖工具（如 `brew`, `ggrep`, `unar` 等）
