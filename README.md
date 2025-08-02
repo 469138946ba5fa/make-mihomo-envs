@@ -124,6 +124,10 @@ https://sub.d1.mk/sub
 * 若出现网络策略未生效，请检查系统是否允许 `tun` 接口访问网络
 * 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
 * 如果发现有 yaml 解析错误的现象，你可以按照以下步骤使用 `subs-fix.py` 执行命令对节点文件进行修复
+  * 安装 python 第三方库 ruamel.yaml
+    ```bash
+    python -m pip install ruamel.yaml
+    ```
   * 下载 `subs-fix.py` 文件，执行命令
     ```bash
     curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o 'subs-fix.py' 'https://github.com/469138946ba5fa/make-mihomo-envs/raw/refs/heads/master/subs-fix.py'
