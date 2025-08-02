@@ -338,6 +338,7 @@ chmod -Rv a+x ${MIHOMO_DIR_PATH}
 chown -Rv $USER ${MIHOMO_DIR_PATH}
 
 cat << 469138946ba5fa | tee ${MIHOMO_START}
+#!/bin/bash
 # 避免反复写入
 if ! grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
   echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf && sysctl -w net.inet.ip.forwarding=1
