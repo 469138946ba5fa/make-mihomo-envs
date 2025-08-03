@@ -123,7 +123,8 @@ ipv6: true
 external-controller: :9999
 external-ui: ui
 secret: 
-tun: {enable: true, stack: mixed, device: utun, auto-route: true, auto-detect-interface: true}
+# 开启tun绑定网卡en0
+tun: {enable: true, stack: mixed, device: utun, auto-route: true, auto-detect-interface: false}
 experimental: {ignore-resolve-fail: true, interface-name: en0}
 
 dns:
@@ -274,7 +275,6 @@ hosts:
   'time.android.com': 203.107.6.88
   'time.facebook.com': 203.107.6.88
   'localhost': 127.0.0.1
-  'nanopi-r3s-lts': 127.0.1.1
 
 rule-providers:
   geosite-cn:
