@@ -353,8 +353,8 @@ sudo ${MIHOMO_BIN_FILE_RENAME} -f ${MIHOMO_FILE} -d ${MIHOMO_DIR}
 chmod -v a+x ${MIHOMO_START}
 echo "已生成启动脚本: ${MIHOMO_START}"
 
-echo "如果想要全局路由你需要配置路由器 DHCP DNS 和 NetGateway 强制为本机 IP 后执行脚本"
-echo "如果想要旁路由，你需要为单个联网设备配置 DNS 和 NetGateway 强制为本机 IP 后执行脚本"
+echo "如果想要全局路由你需要配置路由器 DHCP 下发的 NetGateway 强制为本机 IP 同时将下发 DNS 强制修改为 198.18.0.1 后执行脚本"
+echo "如果想要旁路由，你需要为单个联网设备配置 NetGateway 强制为本机 IP 同时将下发 DNS 强制修改为 198.18.0.1 后执行脚本"
 echo "如果想要本机，那就什么都没什么可说的了"
 echo "执行脚本 ${MIHOMO_START} 启动测试看看吧"
 
