@@ -342,9 +342,10 @@ cat << 469138946ba5fa | tee ${MIHOMO_START}
 #!/bin/bash
 # 避免反复写入
 if ! grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
-  echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf && sysctl -w net.inet.ip.forwarding=1
+  echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf
 fi
-
+# 关闭则 sudo sysctl -w net.inet.ip.forwarding=0
+sudo sysctl -w net.inet.ip.forwarding=1
 sudo pkill -f 'mihomo -f'
 sudo ${MIHOMO_BIN_FILE_RENAME} -f ${MIHOMO_FILE} -d ${MIHOMO_DIR}
 469138946ba5fa
