@@ -123,9 +123,16 @@ ipv6: true
 external-controller: :9999
 external-ui: ui
 secret: 
+
 # 开启tun绑定网卡en0
-tun: {enable: true, stack: mixed, device: utun, auto-route: true, auto-detect-interface: false}
-experimental: {ignore-resolve-fail: true, interface-name: en0}
+tun:
+  enable: true
+  stack: mixed
+  device: utun
+  auto-route: true
+  auto-detect-interface: true
+  include-interface:
+    - en0
 
 dns:
   enable: true
@@ -133,8 +140,8 @@ dns:
   use-hosts: true
   ipv6: true
   default-nameserver:
-    - 114.114.114.114
     - 223.5.5.5
+    - 114.114.114.114
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
@@ -271,19 +278,12 @@ dns:
       - '+.bing.com'
       - '+.linkedin.com'
 
-hosts:
-  'time.android.com': 203.107.6.88
-  'time.facebook.com': 203.107.6.88
-  'localhost': 127.0.0.1
-
 rule-providers:
   geosite-cn:
     type: file
     behavior: domain
     format: mrs
     path: geosite-cn.mrs
-
-
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
