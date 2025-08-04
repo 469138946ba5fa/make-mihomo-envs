@@ -111,9 +111,9 @@ OUT_FILE=${MIHOMO_DIR_PATH}'/out_config.yaml'
 BASE_FILE=${MIHOMO_DIR_PATH}'/base_config.yaml'
 # 固定自定义配置，启用tun模式，到时候转发的时候可以带动全局网络嗨翻天
 BASE_MIHOMO_CONFIG=$(cat <<'469138946ba5fa'
-port: 7890
-socks-port: 7891
-mixed-port: 7892
+mixed-port: 7890
+port: 7891
+socks-port: 7892
 redir-port: 7893
 tproxy-port: 7894
 routing-mark: 7895
