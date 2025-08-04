@@ -104,8 +104,6 @@ UI_URL='https://github.com/Zephyruso/zashboard/releases/download/v1.100.0/dist.z
 UI_FILE=${MIHOMO_DIR}'/ui.zip'
 GEOIP_URL='https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb'
 GEOIP_FILE=${MIHOMO_DIR}'/geoip.metadb'
-GEOSITE_URL='https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs'
-GEOSITE_FILE=${MIHOMO_DIR}'/geosite-cn.mrs'
 TMP_FILE=${MIHOMO_DIR_PATH}'/temp_config.yaml'
 OUT_FILE=${MIHOMO_DIR_PATH}'/out_config.yaml'
 BASE_FILE=${MIHOMO_DIR_PATH}'/base_config.yaml'
@@ -118,6 +116,7 @@ redir-port: 7893
 tproxy-port: 7894
 routing-mark: 7895
 external-controller: :9999
+authentication: [""]
 allow-lan: true
 mode: rule
 log-level: debug
@@ -146,14 +145,8 @@ tun:
 
 dns:
   enable: true
-  # lru: Least Recently Used
-  # arc: Adaptive Replacement Cache
-  cache-algorithm: arc
-  # DOH 优先使用 http/3
-  prefer-h3: true
-  use-hosts: true
-  use-system-hosts: true
   listen: :1053
+  use-hosts: true
   ipv6: true
   default-nameserver:
     - 223.5.5.5
@@ -161,6 +154,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
+    - 'aaa.com'
     - '*.lan'
     - '*.localdomain'
     - '*.example'
@@ -283,34 +277,24 @@ dns:
     - '+.orayimg.com'
     - '+.gcloudcs.com'
     - '+.gcloudsdk.com'
-    - "rule-set:geosite-cn"
-
   nameserver:
     - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
     - tls://dns.rubyfish.cn:853
-
   fallback:
     - https://8.8.8.8/dns-query
     - https://1.1.1.1/dns-query
     - https://dns.quad9.net/dns-query
-
   fallback-filter:
     geoip: true
     geoip-code: CN
     domain:
       - '+.bing.com'
       - '+.linkedin.com'
-
-rule-providers:
-  geosite-cn:
-    type: http
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
-    interval: 600
-    behavior: domain
-    format: mrs
-    path: geosite-cn.mrs
-
+hosts:
+  'time.android.com': 203.107.6.88
+  'time.facebook.com': 203.107.6.88
+  'localhost': 127.0.0.1
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
@@ -354,7 +338,7 @@ if isinstance(data, dict):
 with open(output_path, 'w', encoding='utf-8') as f:
     yaml.dump(data, f)
 
-print(f"✅ 修复完成：{output_path}")
+print(f"修复完成：{output_path}")
 469138946ba5fa
 )
 BASE_CONFIG_FIXSCRIPT_FILE=${MIHOMO_DIR_PATH}'/subs-fix.py'
@@ -365,7 +349,6 @@ mkdir -pv ${MIHOMO_DIR}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${MIHOMO_BIN_FILE_GZ} ${MIHOMO_BIN_FILE_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${UI_FILE} ${UI_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${GEOIP_FILE} ${GEOIP_URL}
-curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${GEOSITE_FILE} ${GEOSITE_URL}
 
 unar -f ${MIHOMO_BIN_FILE_GZ} -o ${MIHOMO_DIR_PATH}
 mv -fv ${MIHOMO_BIN_FILE} ${MIHOMO_BIN_FILE_RENAME}
