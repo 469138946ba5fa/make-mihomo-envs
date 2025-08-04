@@ -146,14 +146,14 @@ tls:
   min-version: "1.2"
   skip-cert-verify: true
 tun:
-  auto-detect-interface: true
-  auto-route: true
-  dns-hijack:
-    - '[::]:1053'
-    - 0.0.0.0:1053
-    - tcp://0.0.0.0:1053
   enable: true
-  stack: mixed
+  stack: system
+  auto-route: true
+  auto-detect-interface: true
+  dns-hijack:
+    - '[::]:53'
+    - any:53
+    - tcp://any:53
 dns:
   default-nameserver:
     - 114.114.114.114
@@ -191,6 +191,7 @@ rule-providers:
     format: mrs
     path: geosite-cn.mrs
     type: file
+
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
