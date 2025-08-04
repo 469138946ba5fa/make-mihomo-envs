@@ -111,18 +111,28 @@ OUT_FILE=${MIHOMO_DIR_PATH}'/out_config.yaml'
 BASE_FILE=${MIHOMO_DIR_PATH}'/base_config.yaml'
 # 固定自定义配置，启用tun模式，到时候转发的时候可以带动全局网络嗨翻天
 BASE_MIHOMO_CONFIG=$(cat <<'469138946ba5fa'
-mixed-port: 7890
-redir-port: 7892
-tproxy-port: 7893
-routing-mark: 7894
-authentication: [""]
-allow-lan: true
-mode: Rule
-log-level: info
-ipv6: true
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+redir-port: 7893
+tproxy-port: 7894
+routing-mark: 7895
 external-controller: :9999
+allow-lan: true
+mode: rule
+log-level: debug
+ipv6: true
 external-ui: ui
-secret: 
+external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
+secret: ""
+interface-name: en0
+# standard：标准加载器
+# memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb"
 
 # 开启tun绑定网卡en0
 tun:
@@ -136,8 +146,14 @@ tun:
 
 dns:
   enable: true
-  listen: :1053
+  # lru: Least Recently Used
+  # arc: Adaptive Replacement Cache
+  cache-algorithm: arc
+  # DOH 优先使用 http/3
+  prefer-h3: true
   use-hosts: true
+  use-system-hosts: true
+  listen: :1053
   ipv6: true
   default-nameserver:
     - 223.5.5.5
@@ -268,22 +284,33 @@ dns:
     - '+.gcloudcs.com'
     - '+.gcloudsdk.com'
     - "rule-set:geosite-cn"
-  nameserver-policy: 
-    "+.googleapis.cn": [https://223.5.5.5/dns-query, https://doh.pub/dns-query, tls://dns.rubyfish.cn:853]
-  nameserver: [https://223.5.5.5/dns-query, https://doh.pub/dns-query, tls://dns.rubyfish.cn:853]
-  fallback: [https://223.5.5.5/dns-query, https://doh.pub/dns-query, tls://dns.rubyfish.cn:853]
+
+  nameserver:
+    - https://223.5.5.5/dns-query
+    - https://doh.pub/dns-query
+    - tls://dns.rubyfish.cn:853
+
+  fallback:
+    - https://8.8.8.8/dns-query
+    - https://1.1.1.1/dns-query
+    - https://dns.quad9.net/dns-query
+
   fallback-filter:
     geoip: true
+    geoip-code: CN
     domain:
       - '+.bing.com'
       - '+.linkedin.com'
 
 rule-providers:
   geosite-cn:
-    type: file
+    type: http
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+    interval: 600
     behavior: domain
     format: mrs
     path: geosite-cn.mrs
+
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
