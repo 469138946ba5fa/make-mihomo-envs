@@ -104,6 +104,8 @@ UI_URL='https://github.com/Zephyruso/zashboard/releases/download/v1.100.0/dist.z
 UI_FILE=${MIHOMO_DIR}'/ui.zip'
 GEOIP_URL='https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb'
 GEOIP_FILE=${MIHOMO_DIR}'/geoip.metadb'
+GEOSITE_URL='https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs'
+GEOSITE_FILE=${MIHOMO_DIR}'/geosite-cn.mrs'
 TMP_FILE=${MIHOMO_DIR_PATH}'/temp_config.yaml'
 OUT_FILE=${MIHOMO_DIR_PATH}'/out_config.yaml'
 BASE_FILE=${MIHOMO_DIR_PATH}'/base_config.yaml'
@@ -132,7 +134,6 @@ geo-auto-update: true
 geo-update-interval: 24
 geox-url:
   geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb"
-
 # 开启tun绑定网卡en0
 tun:
   enable: true
@@ -142,7 +143,6 @@ tun:
   auto-detect-interface: true
   include-interface:
     - en0
-
 dns:
   enable: true
   listen: :1053
@@ -154,129 +154,9 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - 'aaa.com'
-    - '*.lan'
-    - '*.localdomain'
-    - '*.example'
-    - '*.invalid'
-    - '*.localhost'
-    - '*.test'
-    - '*.local'
-    - '*.home.arpa'
-    - '*.direct'
-    - 'time.*.com'
-    - 'time.*.gov'
-    - 'time.*.edu.cn'
-    - 'time.*.apple.com'
-    - 'time-ios.apple.com'
-    - 'time1.*.com'
-    - 'time2.*.com'
-    - 'time3.*.com'
-    - 'time4.*.com'
-    - 'time5.*.com'
-    - 'time6.*.com'
-    - 'time7.*.com'
-    - 'ntp.*.com'
-    - 'ntp1.*.com'
-    - 'ntp2.*.com'
-    - 'ntp3.*.com'
-    - 'ntp4.*.com'
-    - 'ntp5.*.com'
-    - 'ntp6.*.com'
-    - 'ntp7.*.com'
-    - '*.time.edu.cn'
-    - '*.ntp.org.cn'
-    - '+.pool.ntp.org'
-    - 'time1.cloud.tencent.com'
-    - 'music.163.com'
-    - '*.music.163.com'
-    - '*.126.net'
-    - 'musicapi.taihe.com'
-    - 'music.taihe.com'
-    - 'songsearch.kugou.com'
-    - 'trackercdn.kugou.com'
-    - '*.kuwo.cn'
-    - 'api-jooxtt.sanook.com'
-    - 'api.joox.com'
-    - 'joox.com'
-    - 'y.qq.com'
-    - '*.y.qq.com'
-    - 'streamoc.music.tc.qq.com'
-    - 'mobileoc.music.tc.qq.com'
-    - 'isure.stream.qqmusic.qq.com'
-    - 'dl.stream.qqmusic.qq.com'
-    - 'aqqmusic.tc.qq.com'
-    - 'amobile.music.tc.qq.com'
-    - '*.xiami.com'
-    - '*.music.migu.cn'
-    - 'music.migu.cn'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - 'localhost.ptlogin2.qq.com'
-    - 'localhost.sec.qq.com'
-    - 'localhost.*.weixin.qq.com'
-    - '+.steamcontent.com'
-    - '+.srv.nintendo.net'
-    - '*.n.n.srv.nintendo.net'
-    - '+.cdn.nintendo.net'
-    - '+.stun.playstation.net'
-    - 'xbox.*.*.microsoft.com'
-    - '*.*.xboxlive.com'
-    - 'xbox.*.microsoft.com'
-    - 'xnotify.xboxlive.com'
-    - '+.battle.net'
-    - '+.battlenet.com.cn'
-    - '+.wotgame.cn'
-    - '+.wggames.cn'
-    - '+.wowsgame.cn'
-    - '+.wargaming.net'
-    - 'proxy.golang.org'
-    - 'stun.*.*'
-    - 'stun.*.*.*'
-    - '+.stun.*.*'
-    - '+.stun.*.*.*'
-    - '+.stun.*.*.*.*'
-    - '+.stun.*.*.*.*.*'
-    - 'heartbeat.belkin.com'
-    - '*.linksys.com'
-    - '*.linksyssmartwifi.com'
-    - '*.router.asus.com'
-    - 'mesu.apple.com'
-    - 'swscan.apple.com'
-    - 'swquery.apple.com'
-    - 'swdownload.apple.com'
-    - 'swcdn.apple.com'
-    - 'swdist.apple.com'
-    - 'lens.l.google.com'
-    - 'stun.l.google.com'
-    - 'na.b.g-tun.com'
-    - '+.nflxvideo.net'
-    - '*.square-enix.com'
-    - '*.finalfantasyxiv.com'
-    - '*.ffxiv.com'
-    - '*.ff14.sdo.com'
-    - 'ff.dorado.sdo.com'
-    - '*.mcdn.bilivideo.cn'
-    - '+.media.dssott.com'
-    - 'shark007.net'
-    - 'Mijia Cloud'
-    - '+.market.xiaomi.com'
-    - '+.cmbchina.com'
-    - '+.cmbimg.com'
-    - 'adguardteam.github.io'
-    - 'adrules.top'
-    - 'anti-ad.net'
-    - 'local.adguard.org'
-    - 'static.adtidy.org'
-    - '+.sandai.net'
-    - '+.n0808.com'
-    - '+.3gppnetwork.org'
-    - '+.uu.163.com'
-    - 'ps.res.netease.com'
-    - '+.oray.com'
-    - '+.orayimg.com'
-    - '+.gcloudcs.com'
-    - '+.gcloudsdk.com'
+    - 'time.android.com'
+    - 'time.facebook.com'
+    - 'rule-set:geosite-cn'
   nameserver:
     - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
@@ -291,10 +171,14 @@ dns:
     domain:
       - '+.bing.com'
       - '+.linkedin.com'
-hosts:
-  'time.android.com': 203.107.6.88
-  'time.facebook.com': 203.107.6.88
-  'localhost': 127.0.0.1
+rule-providers:
+  geosite-cn:
+    type: http
+    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+    behavior: domain
+    format: mrs
+    path: geosite-cn.mrs
+    interval: 86400
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
@@ -349,6 +233,7 @@ mkdir -pv ${MIHOMO_DIR}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${MIHOMO_BIN_FILE_GZ} ${MIHOMO_BIN_FILE_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${UI_FILE} ${UI_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${GEOIP_FILE} ${GEOIP_URL}
+curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${GEOSITE_FILE} ${GEOSITE_URL}
 
 unar -f ${MIHOMO_BIN_FILE_GZ} -o ${MIHOMO_DIR_PATH}
 mv -fv ${MIHOMO_BIN_FILE} ${MIHOMO_BIN_FILE_RENAME}
