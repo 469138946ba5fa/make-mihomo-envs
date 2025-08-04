@@ -102,8 +102,8 @@ echo "https://github.com${MIHOMO_PATH}/mihomo-darwin-arm64-${VERSION}.gz"
 MIHOMO_BIN_FILE_URL="https://github.com${MIHOMO_PATH}/mihomo-darwin-arm64-${VERSION}.gz"
 UI_URL='https://github.com/Zephyruso/zashboard/releases/download/v1.100.0/dist.zip'
 UI_FILE=${MIHOMO_DIR}'/ui.zip'
-GEOIP_URL='https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb'
-GEOIP_FILE=${MIHOMO_DIR}'/geoip.metadb'
+GEOIP_URL='https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat'
+GEOIP_FILE=${MIHOMO_DIR}'/geoip.dat'
 GEOSITE_URL='https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs'
 GEOSITE_FILE=${MIHOMO_DIR}'/geosite-cn.mrs'
 TMP_FILE=${MIHOMO_DIR_PATH}'/temp_config.yaml'
@@ -111,74 +111,86 @@ OUT_FILE=${MIHOMO_DIR_PATH}'/out_config.yaml'
 BASE_FILE=${MIHOMO_DIR_PATH}'/base_config.yaml'
 # 固定自定义配置，启用tun模式，到时候转发的时候可以带动全局网络嗨翻天
 BASE_MIHOMO_CONFIG=$(cat <<'469138946ba5fa'
-mixed-port: 7890
-port: 7891
-socks-port: 7892
-redir-port: 7893
-tproxy-port: 7894
-routing-mark: 7895
-external-controller: :9999
-authentication: [""]
 allow-lan: true
-mode: rule
-log-level: debug
-ipv6: true
+bind-address: "*"
+connection-pool-size: 512
+external-controller: :9999
 external-ui: ui
-external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
-secret: ""
+find-process-mode: off
+geodata-mode: true
+idle-timeout: 60
+inbound-tfo: true
 interface-name: en0
-# standard：标准加载器
-# memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)
-geodata-loader: standard
-geo-auto-update: true
-geo-update-interval: 24
-geox-url:
-  geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb"
-# 开启tun绑定网卡en0
+ipv6: true
+keep-alive-interval: 30
+log-level: info
+mixed-port: 7890
+mode: rule
+outbound-tfo: true
+secret: ""
+tcp-concurrent-users: 128
+tcp-concurrent: true
+unified-delay: true
+tls:
+  alpn:
+    - h2
+    - h3
+    - http/1.1
+  cipher-suites:
+    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+  enable: true
+  max-version: "1.3"
+  min-version: "1.2"
+  skip-cert-verify: true
 tun:
+  auto-detect-interface: true
+  auto-route: true
+  dns-hijack:
+    - '[::]:1053'
+    - 0.0.0.0:1053
+    - tcp://0.0.0.0:1053
   enable: true
   stack: mixed
-  device: utun
-  auto-route: true
-  auto-detect-interface: true
-  include-interface:
-    - en0
 dns:
-  enable: true
-  listen: :1053
-  use-hosts: true
-  ipv6: true
   default-nameserver:
-    - 223.5.5.5
     - 114.114.114.114
+    - 119.29.29.29
+    - 223.5.5.5
+  enable: true
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - 'time.android.com'
-    - 'time.facebook.com'
+    - '*.lan'
+    - 'localhost'
     - 'rule-set:geosite-cn'
-  nameserver:
-    - https://223.5.5.5/dns-query
-    - https://doh.pub/dns-query
-    - tls://dns.rubyfish.cn:853
+  fake-ip-range: 198.18.0.1/16
   fallback:
-    - https://8.8.8.8/dns-query
-    - https://1.1.1.1/dns-query
-    - https://dns.quad9.net/dns-query
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    domain:
-      - '+.bing.com'
-      - '+.linkedin.com'
+    - https://1.1.1.1/dns-query#h3=true
+    - https://dns.google/dns-query#h3=true
+    - tls://8.8.8.8:853
+  ipv6: true
+  listen: :53
+  nameserver:
+    - https://cloudflare-dns.com/dns-query#h3=true
+    - https://dns.alidns.com/dns-query#h3=true
+    - https://dns.google/dns-query#h3=true
+    - https://doh.pub/dns-query#h3=true
+    - quic://dns.adguard.com:784
+    - tls://223.5.5.5:853
+  nameserver-policy:
+    '.cn': 'https://doh.pub/dns-query'
+    'www.facebook.com': 'https://dns.google/dns-query'
+    'www.google.com': 'https://dns.google/dns-query'
+  prefer-h3: true
+  use-hosts: true
 rule-providers:
   geosite-cn:
-    type: http
-    url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
     behavior: domain
     format: mrs
     path: geosite-cn.mrs
-    interval: 86400
+    type: file
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
@@ -309,7 +321,11 @@ cp -fv '${MIHOMO_FILE}' '${MIHOMO_FILE}.bak'
 # 所以python环境这块，你自己搭建好吗？这行命令用于安装yaml处理相关的第三方库
 
 python -m pip install ruamel.yaml
-python '${BASE_CONFIG_FIXSCRIPT_FILE}' '${MIHOMO_FILE}.bak' '${MIHOMO_FILE}'
+if python '${BASE_CONFIG_FIXSCRIPT_FILE}' '${MIHOMO_FILE}.bak' '${MIHOMO_FILE}'; then
+  echo ok
+else
+  cp -fv '${MIHOMO_FILE}.bak' '${MIHOMO_FILE}'
+fi
 
 echo "配置已生成: ${MIHOMO_FILE}"
 
