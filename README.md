@@ -21,6 +21,22 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 
 ---
 
+## ⚠️ 注意事项
+* 😑关于先有鸡还是先有蛋的问题，说来可笑想搭建代理环境，必须要有代理环境，哎，太可笑了，太可悲了，哎
+  * 本脚本会安装 brew ggrep 和 unar 工具，这需要代理环境，请配置临时代理环境执行本脚本直到结束，哎
+* 本脚本以来 python 环境请自行好提前准备好，本脚本会生成 python 脚本，用于解决在线转换的yaml节点无法解析的问题
+  * 问题分析
+    * 比如 FATA[date] Parse config error: yaml: line num: did not find expected node content 原因如下
+    * 那是由于在线订阅转换链接转换的节点有时候用了 YAML 行内简写结构 {}，其中嵌套的 ws-opts 再次使用 {}，造成了 YAML 无法准确解析结构层次的问题
+    * YAML 对 {} 的嵌套解析非常敏感，嵌套中 headers 没有适当引号包裹的值（如 Host），path: 字段值中含有 /@xxx 这类特殊字符没加引号
+    * 需要用 Python 或 YAML 专用工具转换将每个行内简写结构 {} 展开为 YAML 格式，就可以被正常解析了
+* 如需**全局路由**，请将路由器 DHCP 下发网关设置为本机 IP 同时设置下发 DNS 为 198.18.0.1
+* 如需**旁路由**，请将路由器或设备网关设置为本机 IP 同时设置 DNS 为 198.18.0.1
+* 若出现网络策略未生效，请检查系统是否允许 `utun` 接口访问网络
+* 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
+* 本脚本会自己检测桌面是否包含 $HOME/Desktop/mihomos 目录如果存在，则会自动拼接 uuid 作为新目录在桌面创建
+  * 例如 $HOME/Desktop/mihomos-19AF2BFC-8B73-4678-992C-01BE6045C635
+
 ## 💻 支持平台
 
 * 支持 **macOS**
@@ -28,7 +44,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 
 ---
 
-## 🚀 使用方法
+## 🚀 使用方法(假设默认创建的是 $HOME/Desktop/mihomos 目录)
 
 1. 打开终端下载脚本，例如：
 
@@ -66,12 +82,14 @@ Mihomo 一键搭建配置脚本（macOS arm64）
    ├── mihomo-darwin-arm64.gz
    ├── mihomo-start.sh
    ├── out_config.yaml
+   ├── subs-fix.py
    └── temp_config.yaml
    ```
 
 5. 按照脚本提示启动 Mihomo tun 代理：
 
    ```bash
+   # 订阅链接下载处理等会固化在 mihomo-start.sh 脚本中，此后想用就直接执行这个脚本即可
    $HOME/Desktop/mihomos/mihomo-start.sh
    ```
 
@@ -119,41 +137,6 @@ https://sub.d1.mk/sub
 
 ---
 
-## ⚠️ 注意事项
-* 如需**全局路由**，请将路由器 DHCP 下发网关设置为本机 IP 同时设置下发 DNS 为 198.18.0.1
-* 如需**旁路由**，请将路由器或设备网关设置为本机 IP 同时设置 DNS 为 198.18.0.1
-* 若出现网络策略未生效，请检查系统是否允许 `tun` 接口访问网络
-* 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
-* 如果发现有 yaml 解析错误的现象，你可以按照以下步骤使用 `subs-fix.py` 执行命令对节点文件进行修复
-  * 安装 python 第三方库 ruamel.yaml
-    ```bash
-    python -m pip install ruamel.yaml
-    ```
-  * 下载 `subs-fix.py` 文件，执行命令
-    ```bash
-    cd $HOME/Desktop
-    curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o 'subs-fix.py' 'https://github.com/469138946ba5fa/make-mihomo-envs/raw/refs/heads/master/subs-fix.py'
-    ``` 
-  * 备份节点配置文件，执行命令
-    ```bash
-    cp -fv $HOME/Desktop/mihomos/config.yaml  $HOME/Desktop/mihomos/config.yaml.bak
-    ```
-  * 修补节点配置文件，执行命令
-    ```python
-    python subs-fix.py $HOME/Desktop/mihomos/config.yaml.bak $HOME/Desktop/mihomos/config.yaml
-    ```
-  * 执行启动 mihomo 脚本测试，执行命令
-    ```bash
-    $HOME/Desktop/mihomos/mihomo-start.sh
-    ```
-  * 问题分析
-    * 比如 FATA[date] Parse config error: yaml: line num: did not find expected node content 原因如下
-    * 那是由于在线订阅转换链接转换的节点有时候用了 YAML 行内简写结构 {}，其中嵌套的 ws-opts 再次使用 {}，造成了 YAML 无法准确解析结构层次的问题
-    * YAML 对 {} 的嵌套解析非常敏感，嵌套中 headers 没有适当引号包裹的值（如 Host），path: 字段值中含有 /@xxx 这类特殊字符没加引号
-    * 需要用 Python 或 YAML 专用工具转换将每个行内简写结构 {} 展开为 YAML 格式，就可以被正常解析了
-
----
-
 ## 📚 示例命令
 
 运行脚本并使用默认配置：
@@ -174,7 +157,7 @@ $HOME/Desktop/mihomos/mihomo-start.sh
 ## ❓ 常见问题
 
 **Q: 为什么 brew 安装失败？**
-A: 说来有些可笑，你可能需要为了搭建代理环境而不得不临时使用代理完成这个流程，属实是有些`先有鸡还是先有蛋`了，但是确实你可以修改优化这个脚本，比如将全部链接换成国内网路支持的版本，这样就能完成整套流程了。
+A: 说来有些可笑，你可能需要为了搭建代理环境而不得不临时使用代理完成这个流程，属实是有些`先有鸡还是先有蛋`了，但是确实你有能力确实可以修改优化这个脚本，比如将全部链接换成国内网路支持的版本，这样就能完成整套流程了。
 
 **Q: 为什么 curl 命令在脚本中不生效？**
 A: 可能是 `$SUB_URL` 未被正确 URL 编码，脚本已内置编码函数 `urlencode()`。若有问题请手动检查 `${TMP_FILE}` 是否为空。
