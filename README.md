@@ -12,6 +12,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 
 本脚本用于在 **macOS** 系统上自动化完成以下任务：
 
+* 注意本脚本不会自动安装 python 环境，每个人的系统都很复杂，请自行安装挑选 python 环境
 * 安装依赖工具（如 `brew`, `ggrep`, `unar` 等）
 * 下载并配置 [Mihomo](https://github.com/MetaCubeX/mihomo) 内核
 * 在线订阅转换并生成 Clash 兼容的配置文件
@@ -24,7 +25,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 ## ⚠️ 注意事项
 * 😑关于先有鸡还是先有蛋的问题，说来可笑想搭建代理环境，必须要有代理环境，哎，太可笑了，太可悲了，哎
   * 本脚本会安装 brew ggrep 和 unar 工具，这需要代理环境，请配置临时代理环境执行本脚本直到结束，哎
-* 本脚本以来 python 环境请自行好提前准备好，本脚本会生成 python 脚本，用于解决在线转换的yaml节点无法解析的问题
+* 本脚本依赖 python 环境请自行好提前准备好，本脚本会生成 python 脚本，用于解决在线转换的yaml节点无法解析的问题
   * 问题分析
     * 比如 FATA[date] Parse config error: yaml: line num: did not find expected node content 原因如下
     * 那是由于在线订阅转换链接转换的节点有时候用了 YAML 行内简写结构 {}，其中嵌套的 ws-opts 再次使用 {}，造成了 YAML 无法准确解析结构层次的问题
