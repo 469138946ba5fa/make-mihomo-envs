@@ -287,11 +287,54 @@ rule-providers:
 469138946ba5fa
 )
 MIHOMO_FILE=${MIHOMO_DIR_PATH}'/config.yaml'
+
+BASE_MIHOMO_CONFIG_FIXSCRIPT=$(cat <<'469138946ba5fa'
+# 由于在线订阅转换链接转换的节点有时候用了 YAML 行内简写结构 {}，其中嵌套的 ws-opts 再次使用 {}，造成了 YAML 无法准确解析结构层次的问题
+# YAML 对 {} 的嵌套解析非常敏感，嵌套中 headers 没有适当引号包裹的值（如 Host），path: 字段值中含有 /@xxx 这类特殊字符没加引号
+# 需要用 Python 或 YAML 专用工具转换将每个行内简写结构 {} 展开为 YAML 格式，就可以被正常解析了
+#command -v python
+#python -m pip install ruamel.yaml
+from ruamel.yaml import YAML
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+import sys
+
+yaml = YAML()
+yaml.preserve_quotes = True
+
+def quote_all_scalars(obj):
+    """递归地为所有字符串值加双引号"""
+    if isinstance(obj, dict):
+        return {k: quote_all_scalars(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [quote_all_scalars(i) for i in obj]
+    elif isinstance(obj, str):
+        return DoubleQuotedScalarString(obj)
+    else:
+        return obj
+
+input_path = sys.argv[1]
+output_path = sys.argv[2]
+
+with open(input_path, 'r', encoding='utf-8') as f:
+    data = yaml.load(f)
+
+# 遍历 proxy 节点
+if isinstance(data, dict):
+    for section in ['proxies', 'proxy-providers']:
+        if section in data and isinstance(data[section], list):
+            data[section] = [quote_all_scalars(proxy) for proxy in data[section]]
+
+with open(output_path, 'w', encoding='utf-8') as f:
+    yaml.dump(data, f)
+
+print(f"✅ 修复完成：{output_path}")
+469138946ba5fa
+)
+BASE_CONFIG_FIXSCRIPT_FILE=${MIHOMO_DIR_PATH}'/subs-fix.py'
 MIHOMO_START=${MIHOMO_DIR_PATH}'/mihomo-start.sh'
 
 mkdir -pv ${MIHOMO_DIR}
 
-curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${TMP_FILE} ${SUB_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${MIHOMO_BIN_FILE_GZ} ${MIHOMO_BIN_FILE_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${UI_FILE} ${UI_URL}
 curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o ${GEOIP_FILE} ${GEOIP_URL}
@@ -306,48 +349,84 @@ fi
 unzip -o ${MIHOMO_DIR}'/ui.zip' -d ${MIHOMO_DIR}
 mv -fv ${MIHOMO_DIR}/dist ${MIHOMO_DIR}/ui
 
-#  提取 proxies: proxy-groups: 和 rules:
-awk '
-BEGIN { keep = 0 }
-/^proxies:/     { keep=1 }
-keep && /^[^[:space:]]/ && $1 != "proxies:" && $1 != "proxy-groups:" && $1 != "rules:" { keep=0 }
-keep { print }
-' "${TMP_FILE}" > "${OUT_FILE}"
-
 # 合并自定义头部 + 提取部分
 echo "${BASE_MIHOMO_CONFIG}" > "${BASE_FILE}"
-cat "${BASE_FILE}" "${OUT_FILE}" > "${MIHOMO_FILE}"
-
-echo "配置已生成: ${MIHOMO_FILE}"
-
-# 修复 mihomo config.yaml 中自动选择策略的 url-test 设置
-if [ -f "${MIHOMO_FILE}" ]; then
-    echo "正在增强自动选择策略组配置..."
-
-    # 替换测试 URL 为更稳定的 Cloudflare
-    sed -i '' 's|http://www.gstatic.com/generate_204|http://cp.cloudflare.com/generate_204|g' "${MIHOMO_FILE}"
-
-    awk '
-    /^[ \t]*tolerance:/ { sub(/:[ ]*[0-9]+/, ": 300") }
-    /^[ \t]*interval:/  { sub(/:[ ]*[0-9]+/, ": 180") }
-    { print }
-    ' "$MIHOMO_FILE" > "${MIHOMO_FILE}.tmp" && mv "${MIHOMO_FILE}.tmp" "$MIHOMO_FILE"
-fi
-
+echo "${BASE_MIHOMO_CONFIG_FIXSCRIPT}" > "${BASE_CONFIG_FIXSCRIPT_FILE}"
 
 chmod -Rv a+x ${MIHOMO_DIR_PATH}
 chown -Rv $USER ${MIHOMO_DIR_PATH}
 
 cat << 469138946ba5fa | tee ${MIHOMO_START}
 #!/bin/bash
+IFS_BAK=\$IFS
+IFS=\$'\n'
+set -e
+
+echo "start mihomo..."
+if [ -f '${TMP_FILE}' ]; then
+  rm -fv '${TMP_FILE}'
+fi
+
+if curl -L -C - --retry 3 --retry-delay 5 --progress-bar -o '${TMP_FILE}' '${SUB_URL}'; then
+    # curl 成功，继续检查文件内容
+    if [ ! -s '${TMP_FILE}' ]; then # -s 检查文件是否存在且大小不为0
+        echo "Error: ${TMP_FILE} is empty or not created after curl. Exiting."
+        exit 1
+    fi
+    echo "Temporary config downloaded to ${TMP_FILE}"
+else
+    # curl 失败
+    echo "Error: curl download failed. Exiting."
+    exit 2
+fi
+
+#  提取 proxies: proxy-groups: 和 rules:
+awk '
+BEGIN { keep = 0 }
+/^proxies:/     { keep=1 }
+keep && /^[^[:space:]]/ && \$1 != "proxies:" && \$1 != "proxy-groups:" && \$1 != "rules:" { keep=0 }
+keep { print }
+' '${TMP_FILE}' > '${OUT_FILE}'
+
+cat '${BASE_FILE}' '${OUT_FILE}' > '${MIHOMO_FILE}'
+
+# 修复 mihomo config.yaml 中自动选择策略的 url-test 设置
+if [ -f '${MIHOMO_FILE}' ]; then
+    echo "正在增强自动选择策略组配置..."
+
+    # 替换测试 URL 为更稳定的 Cloudflare
+    sed -i '' 's|http://www.gstatic.com/generate_204|http://cp.cloudflare.com/generate_204|g' '${MIHOMO_FILE}'
+
+    awk '
+    /^[ \t]*tolerance:/ { sub(/:[ ]*[0-9]+/, ": 300") }
+    /^[ \t]*interval:/  { sub(/:[ ]*[0-9]+/, ": 180") }
+    { print }
+    ' '$MIHOMO_FILE' > '${MIHOMO_FILE}.tmp' && mv '${MIHOMO_FILE}.tmp' '$MIHOMO_FILE'
+else
+  echo "Error: ${MIHOMO_FILE} is not exist. Exiting."
+  exit 3
+fi
+
+cp -fv '${MIHOMO_FILE}' '${MIHOMO_FILE}.bak'
+
+# 每个人的系统环境如此的不同
+# 假如你原本就有python环境，而我如果写了一个脚本安装python环境，那一定会破坏你原本的python环境
+# 所以python环境这块，你自己搭建好吗？这行命令用于安装yaml处理相关的第三方库
+
+python -m pip install ruamel.yaml
+python '${BASE_CONFIG_FIXSCRIPT_FILE}' '${MIHOMO_FILE}.bak' '${MIHOMO_FILE}'
+
+echo "配置已生成: ${MIHOMO_FILE}"
+
 # 避免反复写入
 if ! grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
   echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf
 fi
 # 关闭则 sudo sysctl -w net.inet.ip.forwarding=0
 sudo sysctl -w net.inet.ip.forwarding=1
-sudo pkill -f 'mihomo -f'
-sudo ${MIHOMO_BIN_FILE_RENAME} -f ${MIHOMO_FILE} -d ${MIHOMO_DIR}
+sudo pkill -f 'mihomo -f' || true
+sudo '${MIHOMO_BIN_FILE_RENAME}' -f '${MIHOMO_FILE}' -d '${MIHOMO_DIR}'
+IFS=\$IFS_BAK
 469138946ba5fa
 
 chmod -v a+x ${MIHOMO_START}
