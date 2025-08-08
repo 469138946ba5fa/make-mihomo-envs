@@ -36,7 +36,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）
 * 如需**端口代理**，请将联网代理设置为本机 IP:7890
 * 若出现网络策略未生效，请检查系统是否允许 `utun` 接口访问网络
 * 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
-* 本脚本会自己检测桌面是否包含 $HOME/Desktop/mihomos 目录如果存在，则会自动拼接 uuid 作为新目录在桌面创建
+* 本脚本会自己检测桌面是否包含 $HOME/Desktop/mihomos 目录，如果存在则会自动拼接 uuid 作为新目录在桌面创建
   * 例如 $HOME/Desktop/mihomos-19AF2BFC-8B73-4678-992C-01BE6045C635
 
 ## 💻 支持平台
@@ -135,22 +135,6 @@ https://sub.d1.mk/sub
 ?target=clash&insert=true&url=<订阅链接>&config=<规则模板链接>
 ```
 
----
-
-## 📚 示例命令
-
-运行脚本并使用默认配置：
-
-```bash
-chmod +x ./make-mihomo-env.sh
-./make-mihomo-env.sh
-```
-
-运行完成后，执行启动脚本：
-
-```bash
-$HOME/Desktop/mihomos/mihomo-start.sh
-```
 
 ---
 
