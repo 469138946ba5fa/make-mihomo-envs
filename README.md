@@ -155,7 +155,7 @@ A: 这涉及到一个非常经典的问题，我的配置文件用的 `fake-ip` 
 
 ---
 注意，以下步骤不用尝试了，这是个美丽的幻想，mihomo内核是不支持内置mitm，所以要么选择外挂mitm工具，要么选择sing-box，而sing-box更新的又太激进了，维护起来何其费力，难道就没有两全其美的方案？  
-确实没有 -> https://github.com/MetaCubeX/mihomo/issues/2143#issuecomment-3018382470
+确实没有 -> [MetaCubeX/mihomo#2143 (comment)]([https://example.com](https://github.com/MetaCubeX/mihomo/issues/2143#issuecomment-3018382470)){:target="_blank"}
 ---
 
 * 在 MITM 工具（如 mihomo、mitmproxy）中，你自己生成的 `ca.crt` 就是根证书，它用来签发伪造的“中间证书”或“网站证书”，让客户端误以为是合法的。
