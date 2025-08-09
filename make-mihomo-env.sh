@@ -65,10 +65,10 @@ else
 fi
 
 # 订阅链接
-echo "请输入你的订阅链接SUBS，回车使用默认但不保证节点有效:"
-echo "默认 'http://clashshare.cczzuu.top/node/20250802-clash.yaml' "
+echo "请输入你的订阅链接SUBS，不输入直接回车则使用默认但不保证节点有效:"
+echo "默认 'http://clashshare.cczzuu.top/node/20250809-clash.yaml' "
 read -r -s SUBS
-SUBS=${SUBS:-'http://clashshare.cczzuu.top/node/20250802-clash.yaml'}
+SUBS=${SUBS:-'http://clashshare.cczzuu.top/node/20250809-clash.yaml'}
 urlencode() {
   local LANG=C
   local length="${#1}"
@@ -82,12 +82,12 @@ urlencode() {
 }
 SUBS=$(urlencode ${SUBS})
 # 规则策略模版
-echo "请输入你的规则策略模版链接RULES，回车使用默认但不保证模版有效:"
+echo "请输入你的规则策略模版链接RULES，不输入直接回车则使用默认但不保证模版有效:"
 echo "默认 'https://github.com/juewuy/ShellCrash/raw/master/rules/ShellClash_Full_Block.ini' "
 read -r RULES
 RULES=${RULES:-'https://github.com/juewuy/ShellCrash/raw/master/rules/ShellClash_Full_Block.ini'}
 # 在线订阅转换API接口
-echo "请输入你的在线订阅转换API链接SUBS_API，回车使用默认但不保证转换有效:"
+echo "请输入你的在线订阅转换API链接SUBS_API，不输入直接回车则使用默认但不保证转换有效:"
 echo "默认 'https://sub.d1.mk/sub' "
 read -r SUBS_API
 SUBS_API=${SUBS_API:-'https://sub.d1.mk/sub'}
