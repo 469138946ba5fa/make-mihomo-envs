@@ -205,18 +205,20 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 
 ---
 
-* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件配置中，位置自己找自己修改添加以下部分内容**
-  * **如果没执行过脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经不存在，你可以尝试直接编辑 `$HOME/Desktop/make-mihomo-env.sh` 文件，添加以下内容**
-  * **如果执行过了脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经生成，你可以尝试直接编辑 `$HOME/Desktop/mihomos/base_config.yaml` 文件，添加以下内容**
+* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件配置中，位置自己找并修改**
+  * **如果没执行过脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经不存在，你可以尝试直接编辑 `$HOME/Desktop/make-mihomo-env.sh` 文件，修改追加以下部分内容**
+  * **如果执行过了脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经生成，你可以尝试直接编辑 `$HOME/Desktop/mihomos/base_config.yaml` 文件，修改追加以下部分内容**
 
 ```yaml
+external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
+# 其他参数默认不变，这里是追加内容，用作提示，别直接覆盖，万一其他参数用得上呢？
 tls:
   enable: true
   skip-cert-verify: false             # 必须为 false 才会验证并解密
   certificate: ./certs/ca.crt
   private-key: ./certs/ca.key
   sniff: true
-external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
+# 这里是 tls 其他所省略的配置，用作提醒
 ```
 
 ---
