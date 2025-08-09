@@ -166,7 +166,7 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
   - 2. 合法性：解密 HTTPS 流量可能涉及隐私和法律问题，请确保你的操作符合相关法律法规。  
   - 3. 证书管理：生成的证书需要妥善管理，避免泄露或被滥用，千万不要泄露 `ca.key` 否则别人可以伪造你的证书，冒充任何网站。  
   - 4. 某些启用 HPKP / 证书透明（CT）的站点会拒绝被 MITM。
-* 我该说的也说完了，那就开始吧。(假设脚本 `make-mihomo-env.sh` 还未执行 `$HOME/Desktop/mihomos` 目录还不存在)
+* 我该说的也说完了，那就开始吧。
 
 ---
 
@@ -174,23 +174,29 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
 
 ```bash
 # 创建存放目录
-mkdir -p $HOME/Desktop/mihomos/mihomo_config/certs
+mkdir -p "$HOME/Desktop/mihomos/mihomo_config/certs"
+chmod 700 "$HOME/Desktop/mihomos/mihomo_config/certs"
 
-# 生成 100 年有效期的根证书（私钥 + 公钥）
-openssl genrsa -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.key 2048
+# 生成 100 年有效期的 Mihomo CA 证书根证书（私钥 + 公钥）
+openssl genrsa -out "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key" 2048
+chmod 600 "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key"
+
 openssl req -x509 -new -nodes \
-    -key $HOME/Desktop/mihomos/mihomo_config/certs/ca.key \
+    -key "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key" \
     -sha256 -days 36500 \
     -subj "/C=CN/ST=Test/L=Test/O=Test/OU=Test/CN=Mihomo CA" \
-    -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
+    -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+    -addext "subjectKeyIdentifier=hash" \
+    -out "$HOME/Desktop/mihomos/mihomo_config/certs/ca.crt"
 
-# 导入并信任证书到 macOS 系统
+# 导入并信任 Mihomo CA 证书到 macOS 系统
 sudo security add-trusted-cert -d -r trustRoot \
     -k /Library/Keychains/System.keychain \
-    $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
+    "$HOME/Desktop/mihomos/mihomo_config/certs/ca.crt"
 ```
 
-  * **可验证是否添加：**
+  * **可验证 `Mihomo CA` 证书是否添加：**
 
 ```bash
 security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
@@ -215,7 +221,7 @@ external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
 
 ---
 
-* **3. 完成以上操作，启动脚本测试代理是否使用了证书文件**
+* **3. 完成以上操作，启动脚本测试代理是否使用了 `Mihomo CA` 证书文件**
   * **如果脚本 `make-mihomo-env.sh` 还未执行 `$HOME/Desktop/mihomos` 目录还不存在，则执行脚本 `$HOME/Desktop/make-mihomo-env.sh` 并按照脚本提示启动 Mihomo tun 代理脚本 `$HOME/Desktop/mihomos/mihomo-start.sh`**
   * **如果脚本 `make-mihomo-env.sh` 执行过 `$HOME/Desktop/mihomos` 目录存在，则执行脚本 `$HOME/Desktop/mihomos/mihomo-start.sh` 即可**
   * **测试检查证书已经调用**
@@ -243,7 +249,7 @@ Certificate chain
 
 * **4.0 卸载 / 移除证书**
 
-  * **如果以后不想再用 MITM，必须移除 CA 根证书并清理文件：**
+  * **如果以后不想再用 MITM，必须移除 `Mihomo CA` 根证书并清理文件：**
 
 ```bash
 # 删除系统信任的 CA
@@ -253,43 +259,28 @@ sudo security delete-certificate -c "Mihomo CA" /Library/Keychains/System.keycha
 rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
 ```
 
-  * **可验证是否删除：**
+  * **可验证 `Mihomo CA` 根证书是否删除：**
 
 ```bash
 security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 # 无输出则已删除
 ```
 
-* **4.1 卸载 / 移除多证书**
+* **4.1 卸载 / 移除多个 `Mihomo CA` 证书**
   * **例外情况，如果你执行了多次生成导入证书的命令，那么你需要根据 `SHA-1` 精确删除对应的系统信任证书：**
 ```bash
-# 查询系统信任的证书 SHA-1 和 Mihomo CA
-security find-certificate -a -Z -c "Mihomo CA" /Library/Keychains/System.keychain | grep -Ei '="Mihomo CA|SHA-1'
+# 查询系统信任的证书 SHA-1 和 Mihomo CA 并删除所有 Mihomo CA 相关证书
+for hash in $(security find-certificate -a -Z -c "Mihomo CA" /Library/Keychains/System.keychain | awk '/SHA-1/ {print $3}'); do
+  echo "Deleting cert $hash ..."
+  sudo security delete-certificate -Z "$hash" /Library/Keychains/System.keychain
+done
+
+# 删除本地文件
+rm -rf "$HOME/Desktop/mihomos/mihomo_config/certs"
+
 ```
 
-  * **假设得到回显内容如下**
-
-```plaintext
-SHA-1 hash: 1EAE9B7EF539741CCCD26BAE970AE78D043964B2
-    "alis"<blob>="Mihomo CA"
-    "labl"<blob>="Mihomo CA"
-SHA-1 hash: 8769B066365105F385D033850983211A2BF58503
-    "alis"<blob>="Mihomo CA"
-    "labl"<blob>="Mihomo CA"
-```
-
-  * **根据得到的 `SHA-1` 删除对应证书**
-
-```bash
-# 根据SHA-1从系统中删除对应信任证书
-sudo security delete-certificate -Z 1EAE9B7EF539741CCCD26BAE970AE78D043964B2 /Library/Keychains/System.keychain
-sudo security delete-certificate -Z 8769B066365105F385D033850983211A2BF58503 /Library/Keychains/System.keychain
-
-# 删除本地证书文件
-rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
-```
-
-  * **可验证是否删除：**
+  * **可验证 `Mihomo CA` 根证书是否删除：**
 
 ```bash
 security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
