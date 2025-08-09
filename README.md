@@ -214,7 +214,7 @@ tls:
 
 
 
-* **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）
+* **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）**
 
 * **4. 卸载 / 移除证书**
 
