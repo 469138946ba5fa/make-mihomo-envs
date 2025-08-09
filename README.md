@@ -204,17 +204,39 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 ```yaml
 tls:
   enable: true
-  skip-cert-verify: false         # 必须为 false 才会验证并解密
-  cert: ./certs/ca.crt
-  key: ./certs/ca.key
+  skip-cert-verify: false             # 必须为 false 才会验证并解密
+  certificate: ./certs/ca.crt
+  private-key: ./certs/ca.key
   sniff: true
+external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
 ```
-
 ---
 
 
 
 * **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）**
+  * **测试检查证书已经调用**
+```bash
+echo | openssl s_client -connect localhost:9443  -showcerts
+```
+  * **回显信息如下，可以看到 `C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA` 信息，说明证书已经被使用**
+```
+Connecting to ::1
+CONNECTED(00000005)
+Can't use SSL_get_servername
+depth=0 C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA
+verify error:num=18:self-signed certificate
+verify return:1
+depth=0 C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA
+verify return:1
+---
+Certificate chain
+ 0 s:C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA
+   i:C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA
+   a:PKEY: RSA, 2048 (bit); sigalg: sha256WithRSAEncryption
+   v:NotBefore: Aug  9 05:44:34 2025 GMT; NotAfter: Jul 16 05:44:34 2125 GMT
+...
+```
 
 * **4.0 卸载 / 移除证书**
 
