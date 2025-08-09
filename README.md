@@ -162,36 +162,83 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
 * 关于 mihomo 解密https流量，达到7890端口访问的明文效果，也就是 ，你可以尝试以下操作。  
 * 注意，这个步骤我不会写到脚本里，证书链永远都是个危险的尝试，永远不要尝试自己不理解的知识，会坠入深渊。  
 * 不到万不得已，不推荐你搞，懂吧？自己对自己负责吧。  
-  - 1. 安全性：伪造证书认证可能会导致敏感数据泄露或系统被攻击。确保此操作仅用于测试环境，不要在生产环境中使用。  
+  - 1. 安全性：伪造证书认证可能会导致敏感数据泄露或系统被攻击。确保此操作仅用于测试环境，不要在生产环境中使用，不能用于窃取他人数据。  
   - 2. 合法性：解密 HTTPS 流量可能涉及隐私和法律问题，请确保你的操作符合相关法律法规。  
-  - 3. 证书管理：生成的证书需要妥善管理，避免泄露或被滥用。  
-* 记住，千万不要泄露 `ca.key` 否则别人可以伪造你的证书，冒充任何网站。  
+  - 3. 证书管理：生成的证书需要妥善管理，避免泄露或被滥用，千万不要泄露 `ca.key` 否则别人可以伪造你的证书，冒充任何网站。  
+  - 4. 某些启用 HPKP / 证书透明（CT）的站点会拒绝被 MITM。
 * 我该说的也说完了，那就开始吧。
+
+---
+
+* **1. 生成并信任 CA 根证书**
+
 ```bash
-# 创建存放证书公私密钥路径，用于测试
+# 创建存放目录
 mkdir -p $HOME/Desktop/mihomos/mihomo_config/certs
 
-# 生成一百年的根证书（私钥）ca.key 和根证书（公钥）ca.crt 
+# 生成 100 年有效期的根证书（私钥 + 公钥）
 openssl genrsa -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.key 2048
-openssl req -x509 -new -nodes -key $HOME/Desktop/mihomos/mihomo_config/certs/ca.key \
+openssl req -x509 -new -nodes \
+    -key $HOME/Desktop/mihomos/mihomo_config/certs/ca.key \
     -sha256 -days 36500 \
     -subj "/C=CN/ST=Test/L=Test/O=Test/OU=Test/CN=Mihomo CA" \
     -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
 
-# 添加信任到系统，需要输入密码
+# 导入并信任证书到 macOS 系统
 sudo security add-trusted-cert -d -r trustRoot \
     -k /Library/Keychains/System.keychain \
     $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
 ```
-* 尝试关闭跳过证书认证，并尝试添加伪造证书文件到脚本配置中，位置自己找自己修改添加以下内容
+
+---
+
+* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件到脚本  `make-mihomo-env.sh`  配置中，位置自己找自己修改添加以下部分内容**
+
+`config.yaml` 核心部分：
+
 ```yaml
 tls:
-  skip-cert-verify: false
+  enable: true
+  skip-cert-verify: false         # 必须为 false 才会验证并解密
   cert: ./certs/ca.crt
   key: ./certs/ca.key
   sniff: true
 ```
-* 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）
+
+---
+
+
+
+* **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）
+
+* **4. 卸载 / 移除证书**
+
+如果以后不想再用 MITM，必须移除 CA 根证书并清理文件：
+
+```bash
+# 删除系统信任的 CA
+sudo security delete-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
+
+# 删除本地证书文件
+rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
+```
+
+可验证是否删除：
+
+```bash
+security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
+# 无输出则已删除
+```
+
+---
+
+* **5. 常见问题排查**
+  * **全局路由下 `ssl_cert` 报错**
+    → 证书未被客户端信任（Firefox 需单独导入，Java/Node 需导入 keystore）
+  * **fake-ip 解析后某些网站打不开**
+    → 该站点启用证书透明或 HPKP，不允许中间人伪造证书
+  * **TUN 不生效**
+    → 检查 `net.inet.ip.forwarding` 是否为 `1`，且 `sudo` 启动 mihomo
 
 **Q: 配置文件为空或不完整？**  
 A: 检查你输入的订阅链接和规则模板链接是否能通过浏览器访问。
