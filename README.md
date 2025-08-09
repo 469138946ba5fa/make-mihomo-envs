@@ -210,7 +210,7 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
   * **如果执行过了脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经生成，你可以尝试直接编辑 `$HOME/Desktop/mihomos/base_config.yaml` 文件，修改追加以下部分内容**
 
 ```yaml
-external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
+external-controller-tls: :9443 # 开启 tls 管理端口
 # 其他参数默认不变，这里是追加内容，用作提示，别直接覆盖，万一其他参数用得上呢？
 tls:
   enable: true
