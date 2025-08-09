@@ -177,18 +177,44 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
 mkdir -p "$HOME/Desktop/mihomos/mihomo_config/certs"
 chmod 700 "$HOME/Desktop/mihomos/mihomo_config/certs"
 
-# 生成 100 年有效期的 Mihomo CA 证书根证书（私钥 + 公钥）
-openssl genrsa -out "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key" 2048
-chmod 600 "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key"
+# 新建文件 openssl.cnf，内容如下（注意修改 [alt_names] 里可添加更多你想信任的域名/IP）
+cat << '469138946ba5fa' | tee $HOME/Desktop/mihomos/mihomo_config/certs/openssl.cnf
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+x509_extensions = v3_ca
 
-openssl req -x509 -new -nodes \
-    -key "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key" \
-    -sha256 -days 36500 \
-    -subj "/C=CN/ST=Test/L=Test/O=Test/OU=Test/CN=Mihomo CA" \
-    -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
-    -addext "keyUsage=critical,keyCertSign,cRLSign" \
-    -addext "subjectKeyIdentifier=hash" \
-    -out "$HOME/Desktop/mihomos/mihomo_config/certs/ca.crt"
+[dn]
+C = CN
+ST = Test
+L = Test
+O = Test
+OU = Test
+CN = Mihomo CA
+
+[v3_ca]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer
+basicConstraints = critical,CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+extendedKeyUsage = serverAuth, clientAuth
+
+[alt_names]
+DNS.1 = localhost
+IP.1 = 127.0.0.1
+IP.2 = ::1
+469138946ba5fa
+
+# 生成 100 年有效期的 Mihomo CA 证书根证书（私钥 + 公钥）
+openssl req -x509 -newkey rsa:2048 -sha256 -days 36500 -nodes \
+  -keyout $HOME/Desktop/mihomos/mihomo_config/certs/ca.key \
+  -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt \
+  -config $HOME/Desktop/mihomos/mihomo_config/certs/openssl.cnf \
+  -extensions v3_ca
+
+chmod 600 "$HOME/Desktop/mihomos/mihomo_config/certs/ca.key"
 
 # 导入并信任 Mihomo CA 证书到 macOS 系统
 sudo security add-trusted-cert -d -r trustRoot \
@@ -226,9 +252,10 @@ tls:
 * **3. 完成以上操作，启动脚本测试代理是否使用了 `Mihomo CA` 证书文件**
   * **如果脚本 `make-mihomo-env.sh` 还未执行 `$HOME/Desktop/mihomos` 目录还不存在，则执行脚本 `$HOME/Desktop/make-mihomo-env.sh` 并按照脚本提示启动 Mihomo tun 代理脚本 `$HOME/Desktop/mihomos/mihomo-start.sh`**
   * **如果脚本 `make-mihomo-env.sh` 执行过 `$HOME/Desktop/mihomos` 目录存在，则执行脚本 `$HOME/Desktop/mihomos/mihomo-start.sh` 即可**
-  * **测试检查证书已经调用**
+  * **测试检查证书已经调用，端口9443也开启**
 ```bash
-echo | openssl s_client -connect localhost:9443  -showcerts
+echo | openssl s_client -connect 127.0.0.1:9443 -servername localhost -showcerts
+sudo lsof -i :9443
 ```
   * **回显信息如下，可以看到 `C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA` 信息，说明证书已经被使用**
 ```
@@ -247,6 +274,7 @@ Certificate chain
    a:PKEY: RSA, 2048 (bit); sigalg: sha256WithRSAEncryption
    v:NotBefore: Aug  9 05:44:34 2025 GMT; NotAfter: Jul 16 05:44:34 2125 GMT
 ...
+mihomo  4519 root    5u  IPv6 0xe933761124346a07      0t0  TCP *:tungsten-https (LISTEN)
 ```
 
 * **4.0 卸载 / 移除证书**
