@@ -216,7 +216,7 @@ tls:
 
 * **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）**
 
-* **4. 卸载 / 移除证书**
+* **4.0 卸载 / 移除证书**
 
   * **如果以后不想再用 MITM，必须移除 CA 根证书并清理文件：**
 
@@ -226,6 +226,38 @@ sudo security delete-certificate -c "Mihomo CA" /Library/Keychains/System.keycha
 
 # 删除本地证书文件
 rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
+```
+
+  * **可验证是否删除：**
+
+```bash
+security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
+# 无输出则已删除
+```
+
+* **4.1 卸载 / 移除证书**
+  * **例外情况，如果你执行了多次生成导入证书的命令，那么你需要根据 `SHA-1` 精确删除对应的系统信任证书：**
+```bash
+# 查询系统信任的证书 SHA-1 和 Mihomo CA
+security find-certificate -a -Z -c "Mihomo CA" /Library/Keychains/System.keychain | grep -Ei '="Mihomo CA|SHA-1'
+```
+
+  * **假设得到回显内容如下**
+
+```plaintext
+SHA-1 hash: 1EAE9B7EF539741CCCD26BAE970AE78D043964B2
+    "alis"<blob>="Mihomo CA"
+    "labl"<blob>="Mihomo CA"
+SHA-1 hash: 8769B066365105F385D033850983211A2BF58503
+    "alis"<blob>="Mihomo CA"
+    "labl"<blob>="Mihomo CA"
+```
+
+  * **根据得到的 `SHA-1` 删除对应证书**
+
+```bash
+sudo security delete-certificate -Z 1EAE9B7EF539741CCCD26BAE970AE78D043964B2 /Library/Keychains/System.keychain
+sudo security delete-certificate -Z 8769B066365105F385D033850983211A2BF58503 /Library/Keychains/System.keychain
 ```
 
   * **可验证是否删除：**
