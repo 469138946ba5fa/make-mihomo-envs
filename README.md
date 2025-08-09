@@ -278,8 +278,12 @@ SHA-1 hash: 8769B066365105F385D033850983211A2BF58503
   * **根据得到的 `SHA-1` 删除对应证书**
 
 ```bash
+# 根据SHA-1从系统中删除对应信任证书
 sudo security delete-certificate -Z 1EAE9B7EF539741CCCD26BAE970AE78D043964B2 /Library/Keychains/System.keychain
 sudo security delete-certificate -Z 8769B066365105F385D033850983211A2BF58503 /Library/Keychains/System.keychain
+
+# 删除本地证书文件
+rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
 ```
 
   * **可验证是否删除：**
