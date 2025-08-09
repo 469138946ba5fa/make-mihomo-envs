@@ -166,7 +166,7 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
   - 2. 合法性：解密 HTTPS 流量可能涉及隐私和法律问题，请确保你的操作符合相关法律法规。  
   - 3. 证书管理：生成的证书需要妥善管理，避免泄露或被滥用，千万不要泄露 `ca.key` 否则别人可以伪造你的证书，冒充任何网站。  
   - 4. 某些启用 HPKP / 证书透明（CT）的站点会拒绝被 MITM。
-* 我该说的也说完了，那就开始吧。(假设默认创建的是 $HOME/Desktop/mihomos 目录)
+* 我该说的也说完了，那就开始吧。(假设脚本 `make-mihomo-env.sh` 还未执行 `$HOME/Desktop/mihomos` 目录还不存在)
 
 ---
 
@@ -199,7 +199,9 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 
 ---
 
-* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件到脚本  `make-mihomo-env.sh`  配置中，位置自己找自己修改添加以下部分内容**
+* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件配置中，位置自己找自己修改添加以下部分内容**
+  * **如果没执行过脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经不存在，你可以尝试直接编辑 `$HOME/Desktop/make-mihomo-env.sh` 文件，添加以下内容**
+  * **如果执行过了脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经生成，你可以尝试直接编辑 `$HOME/Desktop/mihomos/base_config.yaml` 文件，添加以下内容**
 
 ```yaml
 tls:
@@ -210,11 +212,12 @@ tls:
   sniff: true
 external-controller-tls: 0.0.0.0:9443 # 开启 tls 管理端口
 ```
+
 ---
 
-
-
-* **3. 完成以上操作，最后就可以执行脚本 `make-mihomo-env.sh` 创建 `mihomo` 代理环境+解密https流量（MITM）**
+* **3. 完成以上操作，启动脚本测试代理是否使用了证书文件**
+  * **如果脚本 `make-mihomo-env.sh` 还未执行 `$HOME/Desktop/mihomos` 目录还不存在，则执行脚本 `$HOME/Desktop/make-mihomo-env.sh` 并按照脚本提示启动 Mihomo tun 代理脚本 `$HOME/Desktop/mihomos/mihomo-start.sh`**
+  * **如果脚本 `make-mihomo-env.sh` 执行过 `$HOME/Desktop/mihomos` 目录存在，则执行脚本 `$HOME/Desktop/mihomos/mihomo-start.sh` 即可**
   * **测试检查证书已经调用**
 ```bash
 echo | openssl s_client -connect localhost:9443  -showcerts
