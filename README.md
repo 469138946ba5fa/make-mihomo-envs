@@ -257,7 +257,7 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 # 无输出则已删除
 ```
 
-* **4.1 卸载 / 移除证书**
+* **4.1 卸载 / 移除多证书**
   * **例外情况，如果你执行了多次生成导入证书的命令，那么你需要根据 `SHA-1` 精确删除对应的系统信任证书：**
 ```bash
 # 查询系统信任的证书 SHA-1 和 Mihomo CA
