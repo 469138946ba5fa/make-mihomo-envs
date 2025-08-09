@@ -190,7 +190,7 @@ sudo security add-trusted-cert -d -r trustRoot \
     $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
 ```
 
-  * **可验证是否添加：
+  * **可验证是否添加：**
 
 ```bash
 security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
@@ -218,7 +218,7 @@ tls:
 
 * **4. 卸载 / 移除证书**
 
-  * **如果以后不想再用 MITM，必须移除 CA 根证书并清理文件：
+  * **如果以后不想再用 MITM，必须移除 CA 根证书并清理文件：**
 
 ```bash
 # 删除系统信任的 CA
@@ -228,7 +228,7 @@ sudo security delete-certificate -c "Mihomo CA" /Library/Keychains/System.keycha
 rm -rf $HOME/Desktop/mihomos/mihomo_config/certs
 ```
 
-  * **可验证是否删除：
+  * **可验证是否删除：**
 
 ```bash
 security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
