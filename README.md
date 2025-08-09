@@ -151,7 +151,13 @@ A: 可能是 `$SUB_URL` 未被正确 URL 编码，脚本已内置编码函数 `u
 **Q: 为什么通过7890端口能访问的网站，而通过路由器强制下发DHCP却报错ssl_cert相关的问题？**  
 A: 这涉及到一个非常经典的问题，我的配置文件用的 `fake-ip` 作为 `DNS` 解析策略，TUN + fake-ip + MITM 是直接接管 TCP 流量并劫持 TLS，所以需要伪造证书与客户端完成握手。  
 如果证书未被信任、缺失、SAN 不匹配，就会触发 ssl_cert 或 certificate_verify_failed 报错。  
-7890 走的是 HTTP 代理协议（即使访问的是 HTTPS），浏览器先发一个 CONNECT 请求到代理，代理只是转发 TLS 流量，不解密，所以不需要伪造证书。   
+7890 走的是 HTTP 代理协议（即使访问的是 HTTPS），浏览器先发一个 CONNECT 请求到代理，代理只是转发 TLS 流量，不解密，所以不需要伪造证书。  
+
+---
+注意，以下步骤不用尝试了，这是个美丽的幻想，mihomo内核是不支持内置mitm，所以要么选择外挂mitm工具，要么选择sing-box，而sing-box更新的又太激进了，维护起来何其费力，难道就没有两全其美的方案？  
+确实没有 -> https://github.com/MetaCubeX/mihomo/issues/2143#issuecomment-3018382470
+---
+
 * 在 MITM 工具（如 mihomo、mitmproxy）中，你自己生成的 `ca.crt` 就是根证书，它用来签发伪造的“中间证书”或“网站证书”，让客户端误以为是合法的。
 * 原理是在代理节点，一方面与服务端建立正常的 TLS 连接（代理扮演客户端）；另一方面伪造服务器证书，与客户端建立新的 TLS 连接（代理扮演服务器）
 ```plaintext
