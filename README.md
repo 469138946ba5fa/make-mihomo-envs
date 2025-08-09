@@ -140,20 +140,50 @@ https://sub.d1.mk/sub
 
 ## ❓ 常见问题
 
-**Q: 为什么 brew 安装失败？**
-
+**Q: 为什么 brew 安装失败？**  
 A: 说来有些可笑，你可能需要为了搭建代理环境而不得不临时使用代理完成这个流程，属实是有些`先有鸡还是先有蛋`了，如果你有能力确实可以修改优化这个脚本，比如将全部链接换成国内网路支持的版本，这样就能完成整套流程了。
 
-**Q: 为什么 curl 命令在脚本中不生效？**
 
+**Q: 为什么 curl 命令在脚本中不生效？**  
 A: 可能是 `$SUB_URL` 未被正确 URL 编码，脚本已内置编码函数 `urlencode()`。若有问题请手动检查 `${TMP_FILE}` 是否为空。
 
-**Q: 为什么通过7890端口能访问的网站通过路由器强制下发DHCP却不行？**
 
-A: 这涉及到一个非常经典的问题，我的配置用的fake-ip它使用的是中间人伪造证书认证网站，也就是说如果，没有对应的伪造证书，那么有些节点就无法使用访问网站，而7890端口使用的是http明文访问涉及不到中间人伪造证书这一过程所以可以直接访问。
+**Q: 为什么通过7890端口能访问的网站通过路由器强制下发DHCP却不行？**  
+A: 这涉及到一个非常经典的问题，我的配置用的fake-ip它使用的是中间人伪造证书认证网站，也就是说如果，没有对应的伪造证书，那么有些节点就无法使用访问网站，而7890端口使用的是http明文访问涉及不到中间人伪造证书这一过程所以可以直接访问。  
+* 关于 mihomo 解密https流量，达到7890端口访问的明文效果，也就是 ，你可以尝试以下操作。  
+* 注意，这个步骤我不会写到脚本里，证书链永远都是个危险的尝试，永远不要尝试自己不理解的知识，会坠入深渊。  
+* 不到万不得已，不推荐你搞，懂吧？自己对自己负责吧。  
+  - 1. 安全性：伪造证书认证可能会导致敏感数据泄露或系统被攻击。确保此操作仅用于测试环境，不要在生产环境中使用。  
+  - 2. 合法性：解密 HTTPS 流量可能涉及隐私和法律问题，请确保你的操作符合相关法律法规。  
+  - 3. 证书管理：生成的证书需要妥善管理，避免泄露或被滥用。  
+* 该说的也说完了，那就开始吧。
+```bash
+# 创建存放证书公私密钥路径，用于测试
+mkdir -p $HOME/Desktop/mihomos/mihomo_config/certs
 
-**Q: 配置文件为空或不完整？**
+# 生成一百年的
+openssl genrsa -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.key 2048
+openssl req -x509 -new -nodes -key $HOME/Desktop/mihomos/mihomo_config/certs/ca.key \
+    -sha256 -days 36500 \
+    -subj "/C=CN/ST=Test/L=Test/O=Test/OU=Test/CN=Mihomo CA" \
+    -out $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
 
+# 添加信任到系统，需要输入密码
+sudo security add-trusted-cert -d -r trustRoot \
+    -k /Library/Keychains/System.keychain \
+    $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
+```
+* 尝试关闭跳过证书认证，并尝试添加伪造证书文件到脚本配置中，位置自己找自己修改添加以下内容
+```yaml
+tls:
+  skip-cert-verify: false
+  cert: ./certs/ca.crt
+  key: ./certs/ca.key
+  sniff: true
+```
+* 完成以上操作，最后就可以执行脚本创建 mihomo 代理环境+解密https流量版
+
+**Q: 配置文件为空或不完整？**  
 A: 检查你输入的订阅链接和规则模板链接是否能通过浏览器访问。
 
 ---
