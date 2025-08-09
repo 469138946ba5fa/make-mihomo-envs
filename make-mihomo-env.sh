@@ -132,6 +132,8 @@ tcp-concurrent-users: 128
 tcp-concurrent: true
 unified-delay: true
 tls:
+  enable: true
+  skip-cert-verify: true  # 跳过证书认证
   alpn:
     - h2
     - h3
@@ -141,10 +143,8 @@ tls:
     - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
     - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
     - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
-  enable: true
   max-version: "1.3"
   min-version: "1.2"
-  skip-cert-verify: true  # 跳过证书认证
 tun:
   enable: true
   stack: system
