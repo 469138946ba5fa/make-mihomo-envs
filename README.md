@@ -190,6 +190,13 @@ sudo security add-trusted-cert -d -r trustRoot \
     $HOME/Desktop/mihomos/mihomo_config/certs/ca.crt
 ```
 
+可验证是否添加：
+
+```bash
+security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
+# 有输出则已添加
+```
+
 ---
 
 * **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件到脚本  `make-mihomo-env.sh`  配置中，位置自己找自己修改添加以下部分内容**
