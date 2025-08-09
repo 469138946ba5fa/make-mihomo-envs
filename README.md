@@ -240,7 +240,7 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 
 ---
 
-* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件配置中，位置自己找并修改**
+* **2. 尝试关闭跳过证书认证，并尝试添加伪造证书文件配置中，位置自己找并修改，如果有重复的参数请自行检查原始对应参数替换**
   * **如果没执行过脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经不存在，你可以尝试直接编辑 `$HOME/Desktop/make-mihomo-env.sh` 文件，修改追加以下部分内容**
   * **如果执行过了脚本 `make-mihomo-env.sh` 且 `$HOME/Desktop/mihomos` 目录已经生成，你可以尝试直接编辑 `$HOME/Desktop/mihomos/base_config.yaml` 文件，修改追加以下部分内容**
 
@@ -267,7 +267,7 @@ echo | openssl s_client -connect 127.0.0.1:9443 -servername localhost -showcerts
 sudo lsof -i :9443
 ```
   * **回显信息如下，可以看到 `C=CN, ST=Test, L=Test, O=Test, OU=Test, CN=Mihomo CA` 信息，说明证书已经被使用**
-```
+```plaintext
 Connecting to ::1
 CONNECTED(00000005)
 Can't use SSL_get_servername
