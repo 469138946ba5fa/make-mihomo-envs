@@ -171,6 +171,10 @@ Client <---TLS--->[中间人代理]<---TLS--->Server
 ---
 
 * **1. 生成并信任 CA 根证书**
+  * **注意 `$HOME/Desktop/mihomos/mihomo_config/certs/openssl.cnf` 文件中的部分内容请自行修改**
+    * **IP.2 = 192.168.255.253 是你的内网 IP（`ifconfig` 查）**
+    * **DNS.2 = 469138946ba5fa-Mac-mini.local 是你的内网主机名（`hostname` 查）**
+* 
 
 ```bash
 # 创建存放目录
@@ -178,6 +182,7 @@ mkdir -p "$HOME/Desktop/mihomos/mihomo_config/certs"
 chmod 700 "$HOME/Desktop/mihomos/mihomo_config/certs"
 
 # 新建文件 openssl.cnf，内容如下（注意修改 [alt_names] 里可添加更多你想信任的域名/IP）
+# 其中 IP.2 = 192.168.255.253 是我主机局域网ip
 cat << '469138946ba5fa' | tee $HOME/Desktop/mihomos/mihomo_config/certs/openssl.cnf
 [req]
 default_bits = 2048
@@ -203,8 +208,10 @@ extendedKeyUsage = serverAuth, clientAuth
 
 [alt_names]
 DNS.1 = localhost
+DNS.2 = 469138946ba5fa-Mac-mini.local
 IP.1 = 127.0.0.1
-IP.2 = ::1
+IP.2 = 192.168.255.253
+IP.3 =  ::1
 469138946ba5fa
 
 # 生成 100 年有效期的 Mihomo CA 证书根证书（私钥 + 公钥）
@@ -299,7 +306,9 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 * **4.1 卸载 / 移除多个 `Mihomo CA` 证书**
   * **例外情况，如果你执行了多次生成导入证书的命令，那么你需要根据 `SHA-1` 精确删除对应的系统信任证书：**
 ```bash
-# 查询系统信任的证书 SHA-1 和 Mihomo CA 并删除所有 Mihomo CA 相关证书
+# 查询系统信任的 Mihomo CA 证书 SHA-1 列表，确认无误
+security find-certificate -a -Z -c "Mihomo CA" /Library/Keychains/System.keychain | grep -Ei 'SHA-1|="Mihomo CA'
+# 删除所有 Mihomo CA 相关证书
 for hash in $(security find-certificate -a -Z -c "Mihomo CA" /Library/Keychains/System.keychain | awk '/SHA-1/ {print $3}'); do
   echo "Deleting cert $hash ..."
   sudo security delete-certificate -Z "$hash" /Library/Keychains/System.keychain
@@ -307,7 +316,6 @@ done
 
 # 删除本地文件
 rm -rf "$HOME/Desktop/mihomos/mihomo_config/certs"
-
 ```
 
   * **可验证 `Mihomo CA` 根证书是否删除：**
