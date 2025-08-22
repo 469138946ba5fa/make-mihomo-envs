@@ -208,6 +208,7 @@ def quote_all_scalars(obj):
 
 def add_skip_cert_verify(node):
     """为缺失 skip-cert-verify 的节点插入 True"""
+    #if isinstance(node, dict):
     if isinstance(node, dict) and 'skip-cert-verify' not in node:
         node['skip-cert-verify'] = True
     return node
