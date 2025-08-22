@@ -357,16 +357,27 @@ echo "CIDR 位数: \$CIDR_BITS"
 echo "CIDR 网段: \$CIDR"
 MARKER="# inserted-by-nat-script"
 #NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
-NAT_RULE="nat on \$IFACE from \$CIDR to any -> (\$IFACE) \$MARKER"
+NAT_RULE=\$(cat <<'469138946ba5fa'
+"nat on \$IFACE from \$CIDR to any -> (\$IFACE) \$MARKER"
+"rdr pass on \$IFACE proto udp from any to any -> 198.18.0.1 \$MARKER"
+469138946ba5fa
+)
 PF_CONF="/etc/pf.conf"
 
 # 删除旧规则（带标记的）
 sudo sed -i '' "/\$MARKER/d" "\$PF_CONF"
 
 # 插入新规则
-sudo sed -i '' "/nat-anchor/a\\\\
+# 检查 PF_CONF 是否存在 nat-anchor
+if grep -q "nat-anchor" "\$PF_CONF"; then
+    # 找到 anchor，使用原有方式插入
+    sudo sed -i '' "/nat-anchor/a\\\\
 \$NAT_RULE
 " "\$PF_CONF"
+else
+    # 没找到 anchor，直接追加到文件末尾
+    echo "\$NAT_RULE" | sudo tee -a "\$PF_CONF"
+fi
 
 # 加载并启用 PF
 sudo pfctl -f "\$PF_CONF" || true
@@ -375,6 +386,11 @@ sudo pfctl -s nat
 
 # 关闭则 sudo sysctl -w net.inet.ip.forwarding=0
 sudo sysctl -w net.inet.ip.forwarding=1
+
+# 刷新 DNS 缓存
+sudo dscacheutil -flushcache
+sudo killall -HUP mDNSResponder
+
 sudo pkill -f 'mihomo -f' || true
 sudo '${MIHOMO_BIN_FILE_RENAME}' -f '${MIHOMO_FILE}' -d '${MIHOMO_DIR}'
 IFS=\$IFS_BAK
