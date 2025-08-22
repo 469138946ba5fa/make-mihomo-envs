@@ -339,12 +339,24 @@ fi
 
 # 配置 NAT 转发并做好标记方便删除
 # 获取默认网卡和网段
+# 获取默认网卡
 IFACE=\$(route get default | awk '/interface: / {print \$2}')
+# 获取 IP 地址
 IP=\$(ipconfig getifaddr "\$IFACE")
-NETMASK=\$(ipconfig getoption "\$IFACE" subnet_mask)
-CIDR_BITS=\$(echo "\$NETMASK" | awk -F. '{for(i=1;i<=4;i++)s+=8-log(256-\$i)/log(2); print int(s)}')
+# 获取十六进制子网掩码
+NETMASK_HEX=\$(ifconfig "\$IFACE" | awk '/netmask/ {print \$4}' | sed 's/^0x//')
+# 转换为十进制
+NETMASK_DEC=\$((16#\$NETMASK_HEX))
+# 计算 CIDR 位数
+CIDR_BITS=\$(echo "obase=2; \$NETMASK_DEC" | bc | grep -o "1" | wc -l)
+# 构造 CIDR 网段
 IFS=. read -r o1 o2 o3 o4 <<< "\$IP"
 CIDR="\${o1}.\${o2}.\${o3}.0/\${CIDR_BITS}"
+echo "网卡: \$IFACE"
+echo "IP: \$IP"
+echo "子网掩码: \$NETMASK_HEX"
+echo "CIDR 位数: \$CIDR_BITS"
+echo "CIDR 网段: \$CIDR"
 MARKER="# inserted-by-nat-script"
 #NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
 NAT_RULE="nat on \$IFACE from \$CIDR to any -> (\$IFACE) \$MARKER"
