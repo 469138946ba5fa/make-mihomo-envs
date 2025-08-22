@@ -131,20 +131,6 @@ secret: ""
 tcp-concurrent-users: 128
 tcp-concurrent: true
 unified-delay: true
-tls:
-  enable: true
-  skip-cert-verify: true  # 跳过证书认证
-  alpn:
-    - h2
-    - h3
-    - http/1.1
-  cipher-suites:
-    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-    - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
-    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
-  max-version: "1.3"
-  min-version: "1.2"
 tun:
   enable: true
   stack: system
@@ -220,22 +206,33 @@ def quote_all_scalars(obj):
     else:
         return obj
 
+def add_skip_cert_verify(node):
+    """为缺失 skip-cert-verify 的节点插入 True"""
+    if isinstance(node, dict) and 'skip-cert-verify' not in node:
+        node['skip-cert-verify'] = True
+    return node
+
 input_path = sys.argv[1]
 output_path = sys.argv[2]
 
 with open(input_path, 'r', encoding='utf-8') as f:
     data = yaml.load(f)
 
-# 遍历 proxy 节点
+# 遍历 proxies 和 proxy-providers，插入 skip-cert-verify
 if isinstance(data, dict):
     for section in ['proxies', 'proxy-providers']:
         if section in data and isinstance(data[section], list):
-            data[section] = [quote_all_scalars(proxy) for proxy in data[section]]
+            new_nodes = []
+            for node in data[section]:
+                node = add_skip_cert_verify(node)
+                node = quote_all_scalars(node)
+                new_nodes.append(node)
+            data[section] = new_nodes
 
 with open(output_path, 'w', encoding='utf-8') as f:
     yaml.dump(data, f)
 
-print(f"修复完成：{output_path}")
+print(f"修复完成，缺失 skip-cert-verify 的节点已插入: {output_path}")
 469138946ba5fa
 )
 BASE_CONFIG_FIXSCRIPT_FILE=${MIHOMO_DIR_PATH}'/subs-fix.py'
