@@ -371,8 +371,8 @@ sudo sed -i '' "/nat-anchor/a\\\\
 " "\$PF_CONF"
 
 # 加载并启用 PF
-sudo pfctl -f "\$PF_CONF"
-sudo pfctl -e
+sudo pfctl -f "\$PF_CONF" || true
+sudo pfctl -e || true
 sudo pfctl -s nat
 
 # 关闭则 sudo sysctl -w net.inet.ip.forwarding=0
