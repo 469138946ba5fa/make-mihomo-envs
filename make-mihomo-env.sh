@@ -348,7 +348,7 @@ NETMASK_HEX=\$(ifconfig "\$IFACE" | awk '/netmask/ {print \$4}' | sed 's/^0x//')
 # 转换为十进制
 NETMASK_DEC=\$((16#\$NETMASK_HEX))
 # 计算 CIDR 位数
-CIDR_BITS=\$(echo "obase=2; \$NETMASK_DEC" | bc | grep -o "1" | wc -l)
+CIDR_BITS=\$(echo "obase=2; \$NETMASK_DEC" | bc | grep -o "1" | wc -l | tr -d '[:space:]')
 # 构造 CIDR 网段
 IFS=. read -r o1 o2 o3 o4 <<< "\$IP"
 CIDR="\${o1}.\${o2}.\${o3}.0/\${CIDR_BITS}"
