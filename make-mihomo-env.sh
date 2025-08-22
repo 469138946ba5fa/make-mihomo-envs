@@ -337,16 +337,26 @@ if ! grep -qF "\$NAT_IP" "\$SYS_CONF"; then
   echo "\$NAT_IP" | sudo tee -a "\$SYS_CONF"
 fi
 
-NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
-PF_CONF='/etc/pf.conf'
+# 配置 NAT 转发并做好标记方便删除
+# 获取默认网卡和网段
+IFACE=\$(route get default | awk '/interface: / {print \$2}')
+IP=\$(ipconfig getifaddr "\$IFACE")
+NETMASK=\$(ipconfig getoption "\$IFACE" subnet_mask")
+CIDR_BITS=$(echo "\$NETMASK" | awk -F. '{for(i=1;i<=4;i++)s+=8-log(256-\$i)/log(2); print int(s)}')
+IFS=. read -r o1 o2 o3 o4 <<< "\$IP"
+CIDR="\${o1}.\${o2}.\${o3}.0/\${CIDR_BITS}"
+MARKER="# inserted-by-nat-script"
+#NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
+NAT_RULE="nat on \$IFACE from \$CIDR to any -> (\$IFACE) \$MARKER"
+PF_CONF="/etc/pf.conf"
 
-# 检查 NAT 规则是否已存在
-if ! grep -qF "\$NAT_RULE" "\$PF_CONF"; then
-  # 在 nat-anchor 后插入 NAT 规则
-  sudo sed -i '' "/nat-anchor/a\\\\
+# 删除旧规则（带标记的）
+sudo sed -i '' "/\$MARKER/d" "\$PF_CONF"
+
+# 插入新规则
+sudo sed -i '' "/nat-anchor/a\\\\
 \$NAT_RULE
 " "\$PF_CONF"
-fi
 
 # 加载并启用 PF
 sudo pfctl -f "\$PF_CONF"
