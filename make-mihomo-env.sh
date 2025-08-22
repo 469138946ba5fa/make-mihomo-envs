@@ -374,7 +374,9 @@ if grep -q "nat-anchor" "\$PF_CONF"; then
 " "\$PF_CONF"
 else
     # 没找到 anchor，直接追加到文件末尾
-    echo "\$NAT_RULE1" | sudo tee -a "\$PF_CONF"
+    #echo "\$NAT_RULE1" | sudo tee -a "\$PF_CONF"
+    printf '%s\n' "\$NAT_RULE1" | sudo tee -a "\$PF_CONF"
+
 fi
 
 # 插入 RDR 规则
@@ -386,10 +388,12 @@ if grep -q "rdr-anchor" "\$PF_CONF"; then
 " "\$PF_CONF"
 else
     # 没找到 anchor，直接追加到文件末尾
-    echo "\$NAT_RULE2" | sudo tee -a "\$PF_CONF"
+    #echo "\$NAT_RULE2" | sudo tee -a "\$PF_CONF"
+    printf '%s\n' "\$NAT_RULE2" | sudo tee -a "\$PF_CONF"
 fi
 
-# 加载并启用 PF
+# 重载 PF 加载并启用 PF
+sudo pfctl -d 2>/dev/null || true
 sudo pfctl -f "\$PF_CONF" || true
 sudo pfctl -e || true
 sudo pfctl -s nat
