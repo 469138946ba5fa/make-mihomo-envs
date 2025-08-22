@@ -341,7 +341,7 @@ fi
 # 获取默认网卡和网段
 IFACE=\$(route get default | awk '/interface: / {print \$2}')
 IP=\$(ipconfig getifaddr "\$IFACE")
-NETMASK=\$(ipconfig getoption "\$IFACE" subnet_mask")
+NETMASK=\$(ipconfig getoption "\$IFACE" subnet_mask)
 CIDR_BITS=\$(echo "\$NETMASK" | awk -F. '{for(i=1;i<=4;i++)s+=8-log(256-\$i)/log(2); print int(s)}')
 IFS=. read -r o1 o2 o3 o4 <<< "\$IP"
 CIDR="\${o1}.\${o2}.\${o3}.0/\${CIDR_BITS}"
