@@ -330,10 +330,29 @@ fi
 
 echo "配置已生成: ${MIHOMO_FILE}"
 
-# 避免反复写入
-if ! grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
-  echo 'net.inet.ip.forwarding=1' | sudo tee -a /etc/sysctl.conf
+# 开启 IP 转发避免反复写入
+NAT_IP='net.inet.ip.forwarding=1'
+SYS_CONF='/etc/sysctl.conf'
+if ! grep -qF "\$NAT_IP" "\$SYS_CONF"; then
+  echo "\$NAT_IP" | sudo tee -a "\$SYS_CONF"
 fi
+
+NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
+PF_CONF='/etc/pf.conf'
+
+# 检查 NAT 规则是否已存在
+if ! grep -qF "\$NAT_RULE" "\$PF_CONF"; then
+  # 在 nat-anchor 后插入 NAT 规则
+  sudo sed -i '' "/nat-anchor/a\\\\
+\$NAT_RULE
+" "\$PF_CONF"
+fi
+
+# 加载并启用 PF
+sudo pfctl -f "\$PF_CONF"
+sudo pfctl -e
+sudo pfctl -s nat
+
 # 关闭则 sudo sysctl -w net.inet.ip.forwarding=0
 sudo sysctl -w net.inet.ip.forwarding=1
 sudo pkill -f 'mihomo -f' || true
