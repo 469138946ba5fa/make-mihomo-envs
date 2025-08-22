@@ -360,12 +360,12 @@ if grep -q '^net.inet.ip.forwarding=1' /etc/sysctl.conf 2>/dev/null; then
   sudo sed -i '' '/^net\.inet\.ip\.forwarding=1$/d' /etc/sysctl.conf
 fi
 
-# 1.2 从 /etc/pf.conf 移除 nat on en0 from 192.168.255.0/24 to any -> (en0) 行
-if grep -q '^nat on en0 from 192.168.255.0/24 to any -> (en0)' /etc/pf.conf 2>/dev/null; then
-  echo "移除 /etc/pf.conf 中的 NAT 转发配置..."
-  sudo sed -i '' '/^net\.inet\.ip\.forwarding=1$/d' /etc/sysctl.conf
-  sudo sed -i '' '/^nat on en0 from 192\.168\.255\.0/24 to any -> (en0)
-fi
+# 1.2 从 /etc/pf.conf 移除 "# inserted-by-nat-script" 标记行
+# 删除旧规则（带标记的）
+sudo sed -i '' "/# inserted-by-nat-script/d" /etc/pf.conf
+# 重新加载 PF
+sudo pfctl -f /etc/pf.conf
+sudo pfctl -e
 
 # 2. 实时禁用 IP 转发
 echo "禁用 IP 转发..."
