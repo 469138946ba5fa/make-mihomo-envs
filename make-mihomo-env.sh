@@ -66,9 +66,9 @@ fi
 
 # 订阅链接
 echo "请输入你的订阅链接SUBS，不输入直接回车则使用默认但不保证节点有效:"
-echo "默认 'http://clashshare.cczzuu.top/node/20250809-clash.yaml' "
+echo "默认 'https://panlongid.com/wp-content/uploads/nodelist/202508/20250831-base64-3Jgp35.txt' "
 read -r -s SUBS
-SUBS=${SUBS:-'http://clashshare.cczzuu.top/node/20250809-clash.yaml'}
+SUBS=${SUBS:-'https://panlongid.com/wp-content/uploads/nodelist/202508/20250831-base64-3Jgp35.txt'}
 urlencode() {
   local LANG=C
   local length="${#1}"
@@ -100,7 +100,8 @@ MIHOMO_PATH=$(curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 
 VERSION=$(basename $(echo ${MIHOMO_PATH} | sed 's;-;/;g') | tr 'A-Z' 'a-z')-${MIHOMO_COMMIT}
 echo "https://github.com${MIHOMO_PATH}/mihomo-darwin-arm64-${VERSION}.gz"
 MIHOMO_BIN_FILE_URL="https://github.com${MIHOMO_PATH}/mihomo-darwin-arm64-${VERSION}.gz"
-UI_URL='https://github.com/Zephyruso/zashboard/releases/download/v1.100.0/dist.zip'
+UI_PATH=$(curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "Connection: keep-alive" -k 'https://github.com/Zephyruso/zashboard/releases' | sed 's;";\n;g;s;tag;download;g' | grep '/download/' | head -n 1)
+UI_URL="https://github.com${UI_PATH}/dist.zip"
 UI_FILE=${MIHOMO_DIR}'/ui.zip'
 GEOIP_URL='https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat'
 GEOIP_FILE=${MIHOMO_DIR}'/geoip.dat'
