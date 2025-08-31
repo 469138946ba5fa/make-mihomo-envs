@@ -354,10 +354,10 @@ pf_nat_udp_tcp() {
   #NAT_RULE='nat on en0 from 192.168.255.0/24 to any -> (en0)'
   #NAT_RULE="nat on \$IFACE from \$CIDR to any -> (\$IFACE) \$MARKER"
   #NAT_RULE="nat on \$IFACE from any to any -> (\$IFACE) \$MARKER"
-  NAT_RULE='nat-anchor "singbox/*" '\$MARKER
+  NAT_RULE='nat-anchor "mihomo/*" '\$MARKER
   #RDR_RULE='rdr pass on en0 proto udp from any to any -> 198.18.0.1'
   #RDR_RULE="rdr pass on \$IFACE proto udp from any to any -> 198.18.0.1 \$MARKER"
-  RDR_RULE='rdr-anchor "singbox/*" '\$MARKER
+  RDR_RULE='rdr-anchor "mihomo/*" '\$MARKER
   ANCHOR_FILE="/etc/pf.anchors/mihomo"
   PF_CONF="/etc/pf.conf"
 
@@ -370,8 +370,8 @@ pf_nat_udp_tcp() {
   if grep -q "nat-anchor" "\$PF_CONF"; then
       # 找到 anchor，使用原有方式插入
       sudo sed -i '' "/nat-anchor/a\\\\
-  \$NAT_RULE
-  " "\$PF_CONF"
+\$NAT_RULE
+" "\$PF_CONF"
   else
       # 没找到 anchor，直接追加到文件末尾
       #echo "\$NAT_RULE" | sudo tee -a "\$PF_CONF"
@@ -384,8 +384,8 @@ pf_nat_udp_tcp() {
   if grep -q "rdr-anchor" "\$PF_CONF"; then
       # 找到 anchor，使用原有方式插入
       sudo sed -i '' "/rdr-anchor/a\\\\
-  \$RDR_RULE
-  " "\$PF_CONF"
+\$RDR_RULE
+" "\$PF_CONF"
   else
       # 没找到 anchor，直接追加到文件末尾
       #echo "\$RDR_RULE" | sudo tee -a "\$PF_CONF"
