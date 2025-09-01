@@ -397,12 +397,11 @@ pf_nat_udp_tcp() {
 # NAT 出口伪装，保证 Mac 自身流量出外网正常
 nat on \$IFACE from any to any -> (\$IFACE)
 
-# 跳过本机和局域网流量
-no rdr on \$IFACE proto {tcp udp} from any to 127.0.0.1
-no rdr on \$IFACE proto {tcp udp} from any to {192.168.0.0/16 10.0.0.0/8 172.16.0.0/12}
+# DNS 劫持（如果设备没手动设置 DNS）
+#rdr pass on \$IFACE proto udp from any to any port 53 -> 127.0.0.1 port 53
 
-# 全局转发到 sing-box TUN
-rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
+# TCP/UDP 流量透明代理
+rdr pass on \$IFACE proto {tcp udp} from any to any -> 127.0.0.1 port 7890
 469138946ba5fa_1
 
   # 重载 PF 加载并启用 PF
@@ -436,8 +435,8 @@ IFS=\$IFS_BAK
 chmod -v a+x ${MIHOMO_START}
 echo "已生成启动脚本: ${MIHOMO_START}"
 
-echo "如果想要全局路由你需要配置路由器 DHCP 下发的 NetGateway 强制为本机 IP 同时将下发 DNS 强制修改为 198.18.0.1 后执行脚本"
-echo "如果想要旁路由，你需要为单个联网设备配置 NetGateway 强制为本机 IP 同时将下发 DNS 强制修改为 198.18.0.1 后执行脚本"
+echo "如果想要全局路由你需要配置路由器 DHCP 下发的 NetGateway 和 DNS 强制为本机 IP 后执行脚本"
+echo "如果想要旁路由，你需要为单个联网设备配置 NetGateway 和 DNS 强制为本机 IP 后执行脚本"
 echo "如果想要端口代理，你需要将联网代理设置为本机 IP:7890"
 echo "如果想要本机，那就什么都没什么可说的了"
 echo "执行脚本 ${MIHOMO_START} 启动测试看看吧"
