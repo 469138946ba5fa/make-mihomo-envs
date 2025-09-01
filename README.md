@@ -353,6 +353,14 @@ security find-certificate -c "Mihomo CA" /Library/Keychains/System.keychain
 **Q: 配置文件为空或不完整？**  
 A: 检查你输入的订阅链接和规则模板链接是否能通过浏览器访问。
 
+**Q: 你的测试节点哪里来的？这个问题就不要在私信我了哦。**  
+A: 动动你的小手，打开浏览器，打开搜索框输入关键词有且不限于以下信息，按回车，你大概率能搜索到  
+  `site: baidu.com 20250901 clash base64 免费节点`,   
+  `site: google.com 20250901 clash base64 免费节点`,   
+  `site: bing.com 20250901 clash base64 免费节点`,   
+  `site: duckduckgo.com 20250901 clash base64 免费节点`,   
+  `site: yahoo.com 20250901 clash base64 免费节点`, ...   
+
 ---
 
 ## 🧼 卸载（可选）
@@ -400,6 +408,7 @@ rm -rf $HOME/Desktop/mihomos*
 [github/Zephyruso zashboard](https://github.com/Zephyruso/zashboard)  
 [github/MetaCubeX meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)  
 [github/MetaCubeX meta-rules-dat/tree/meta](https://github.com/MetaCubeX/meta-rules-dat/tree/meta)  
+[www.panlongid.com freenodeshare](https://www.panlongid.com/category/freenodeshare)  
 
 ## 声明
 本项目仅作学习交流使用，学习各种姿势，不做任何违法行为。仅供交流学习使用，出现违法问题我负责不了，我也没能力负责，我没工作，也没收入，年纪也大了，就算灭了我也没用，我也没能力负责。
