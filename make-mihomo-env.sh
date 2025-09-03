@@ -398,10 +398,12 @@ pf_nat_udp_tcp() {
 nat on \$IFACE from any to any -> (\$IFACE)
 
 # DNS 劫持（如果设备没手动设置 DNS）
-#rdr pass on \$IFACE proto udp from any to any port 53 -> 127.0.0.1 port 53
+#rdr pass on \$IFACE proto udp from any to any port 53 -> 198.18.0.1 port 53
 
-# TCP/UDP 流量透明代理
-rdr pass on \$IFACE proto {tcp udp} from any to any -> 127.0.0.1 port 7890
+# TCP/UDP 流量转发到 mihomo 7890
+#rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1 port 7890
+# TCP/UDP 流量转发到 mihomo TUN
+rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
 469138946ba5fa_1
 
   # 重载 PF 加载并启用 PF
