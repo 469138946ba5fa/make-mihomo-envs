@@ -39,7 +39,7 @@ Mihomo 一键搭建配置脚本（macOS arm64）可用做网关代理
 * 为启用系统级转发，会尝试设置 `net.inet.ip.forwarding=1`，需要管理员权限
 * 本脚本会自己检测桌面是否包含 $HOME/Desktop/mihomos 目录，如果存在则会自动拼接 uuid 作为新目录在桌面创建
   * 例如 $HOME/Desktop/mihomos-19AF2BFC-8B73-4678-992C-01BE6045C635
-* 本脚本会默认你将 DNS 配置为网关设备 IP 借由 mihomo 主动拦截 DNS 53 端口的特性，但是你要是没有配置 DNS 为网关设备 IP ，比如配置 DNS 为任意有效的 DNS（如 1.1.1.1, 8.8.8.8 或 223.5.5.5）或路由器 IP ，建议你修改脚本将以下代码块解除注释以实现 mihomo 被动拦截 DNS 53 端口
+* 本脚本会默认你将 DNS 配置为网关设备 IP 借由 mihomo 主动拦截 DNS 53 端口的特性，但是你要是没有配置 DNS 为网关设备 IP ，比如配置 DNS 为任意真实 DNS（如 1.1.1.1, 8.8.8.8 或 223.5.5.5）或修改为路由器 IP (大概率拦截失败)，注意不要设置为 172.19.0.1 或 fake-ip 地址，建议你修改脚本将以下代码块解除注释以实现 mihomo 被动拦截 DNS 53 端口
   ```bash
   # DNS 劫持（如果设备没手动设置 DNS）
   #rdr pass on $IFACE proto udp from any to any port 53 -> 127.0.0.1 port 53
