@@ -416,8 +416,12 @@ nat on \$IFACE from any to any -> (\$IFACE)
 
 # TCP/UDP 流量转发到 mihomo 7890
 #rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1 port 7890
+# TCP 流量转发到 mihomo 7890
+#rdr pass on \$IFACE proto tcp from any to any -> 198.18.0.1 port 7890
 # TCP/UDP 流量转发到 mihomo TUN
-rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
+#rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
+# TCP 流量转发到 mihomo TUN
+rdr pass on \$IFACE proto tcp from any to any -> 198.18.0.1
 469138946ba5fa_1
 
   # 重载 PF 加载并启用 PF
