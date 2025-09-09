@@ -359,6 +359,7 @@ pf_nat_udp_tcp() {
   #RDR_RULE="rdr pass on \$IFACE proto udp from any to any -> 198.18.0.1 \$MARKER"
   RDR_RULE='rdr-anchor "mihomo/*" '\$MARKER
   ANCHOR_FILE="/etc/pf.anchors/mihomo"
+  NAT_RDR_RULE='load anchor "mihomo" from "\$ANCHOR_FILE" '\$MARKER
   PF_CONF="/etc/pf.conf"
 
   # 删除旧规则（带标记的）
@@ -390,6 +391,19 @@ pf_nat_udp_tcp() {
       # 没找到 anchor，直接追加到文件末尾
       #echo "\$RDR_RULE" | sudo tee -a "\$PF_CONF"
       printf '%s\n' "\$RDR_RULE" | sudo tee -a "\$PF_CONF"
+  fi
+
+  # 加载规则
+  # 检查 /etc/pf.conf 是否存在 load anchor
+  if grep -q "load anchor" "\$PF_CONF"; then
+      # 找到 anchor，使用原有方式插入
+      sudo sed -i '' "/load anchor/a\\
+\$NAT_RDR_RULE
+" "\$PF_CONF"
+  else
+      # 没找到 anchor，直接追加到文件末尾
+      #echo "\$NAT_RDR_RULE" | sudo tee -a "\$PF_CONF"
+      printf '%s\n' "\$NAT_RDR_RULE" | sudo tee -a "\$PF_CONF"
   fi
 
   # 写入 anchor 规则
