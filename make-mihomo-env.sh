@@ -305,7 +305,7 @@ if [ -f '${MIHOMO_FILE}' ]; then
     sed -i '' 's|http://www.gstatic.com/generate_204|http://cp.cloudflare.com/generate_204|g' '${MIHOMO_FILE}'
 
     awk '
-    /^[ \t]*tolerance:/ { sub(/:[ ]*[0-9]+/, ": 300") }
+    /^[ \t]*tolerance:/ { sub(/:[ ]*[0-9]+/, ": 30") }
     /^[ \t]*interval:/  { sub(/:[ ]*[0-9]+/, ": 180") }
     { print }
     ' '$MIHOMO_FILE' > '${MIHOMO_FILE}.tmp' && mv '${MIHOMO_FILE}.tmp' '$MIHOMO_FILE'
