@@ -369,18 +369,19 @@ pf_nat_udp_tcp() {
   # 写入 anchor 规则
   cat <<469138946ba5fa_1 | sudo tee \$ANCHOR_FILE
 # NAT 出口伪装，保证 Mac 自身流量出外网正常
-#nat on \$IFACE from any to any -> (\$IFACE)
+nat on \$IFACE from any to any -> (\$IFACE)
 
 # DNS 劫持（如果设备没手动设置 DNS）
-#rdr pass on \$IFACE proto udp from any to any port 53 -> 198.18.0.1 port 53
+#rdr pass on \$IFACE proto {tcp udp} from any to any port 53 -> 198.18.0.1 port 53
+rdr pass on \$IFACE proto udp from any to any port 53 -> 198.18.0.1 port 53
 
-# TCP/UDP 流量转发到 mihomo 7890
+# TCP/UDP 流量转发到 sing-box 7890
 #rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1 port 7890
-# TCP 流量转发到 mihomo 7890
+# TCP 流量转发到 sing-box 7890
 #rdr pass on \$IFACE proto tcp from any to any -> 198.18.0.1 port 7890
-# TCP/UDP 流量转发到 mihomo TUN
-#rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
-# TCP 流量转发到 mihomo TUN
+# TCP/UDP 流量转发到 sing-box TUN
+rdr pass on \$IFACE proto {tcp udp} from any to any -> 198.18.0.1
+# TCP 流量转发到 sing-box TUN
 #rdr pass on \$IFACE proto tcp from any to any -> 198.18.0.1
 469138946ba5fa_1
 
